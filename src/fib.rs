@@ -9,7 +9,7 @@ defs! {
     fn seven() -> int;
 }
 
-#[proven_externally(proof)]
+#[proven_externally]
 #[spec(fn() -> usize[seven()])]
 pub fn seven() -> usize {
     3 + 2 + 2
