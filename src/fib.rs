@@ -15,6 +15,13 @@ pub fn seven() -> usize {
     3 + 2 + 2
 }
 
+
+#[proven_externally]
+#[spec(fn() -> usize[8])]
+pub fn eight() -> usize {
+    3 + 2 + 2 + 1
+}
+
 /*
 defs! {
     fn fib(n: int) -> int;
