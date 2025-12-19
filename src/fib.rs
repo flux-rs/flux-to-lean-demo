@@ -6,31 +6,34 @@ pub fn incr(n: usize) -> usize {
 }
 
 defs! {
-    fn seven() -> int;
+    fn spec_seven() -> int;
+    fn spec_sum(n: int) -> int;
+    fn spec_ninety() -> int;
+    fn spec_ten() -> int { 10 }
 }
 
-#[proven_externally]
-#[spec(fn() -> usize[seven()])]
+#[proven_externally(proof)]
+#[spec(fn() -> usize[spec_seven()])]
 pub fn seven() -> usize {
     3 + 2 + 2
 }
 
-
-#[proven_externally]
-#[spec(fn() -> usize[8])]
-pub fn eight() -> usize {
-    3 + 2 + 2 + 1
+#[proven_externally(proof)]
+#[spec(fn() -> usize[spec_ninety()])]
+pub fn ninety() -> usize {
+    42 + 48
 }
 
-/*
-defs! {
-    fn fib(n: int) -> int;
-    fn sum(n: int) -> int;
+#[proven_externally(proof)]
+#[spec(fn() -> usize[spec_ten()])]
+pub fn ten() -> usize {
+    5 + 5
 }
 
-#[proven_externally]
-#[spec(fn(n: usize) -> usize[sum(n)])]
-fn sum_loop(n: usize) -> usize {
+
+#[proven_externally(proof)]
+#[spec(fn(n: usize) -> usize[spec_sum(n)])]
+pub fn sum_loop(n: usize) -> usize {
     let mut total = 0;
     let mut i = 0;
     while i < n {
@@ -45,6 +48,14 @@ fn sum_loop(n: usize) -> usize {
     // total = sum(n+1)
     total
 }
+
+/*
+defs! {
+    fn fib(n: int) -> int;
+    fn sum(n: int) -> int;
+}
+
+
 
 #[proven_externally]
 #[spec(fn(usize[@n]) -> usize[fib(n)])]
