@@ -7,15 +7,19 @@ pub fn incr(n: usize) -> usize {
 
 defs! {
     fn spec_seven() -> int;
+    fn spec_twelve() -> int;
+    fn spec_ninety() -> int { 90 }
     fn spec_sum(n: int) -> int;
-    fn spec_ninety() -> int;
-    fn spec_ten() -> int { 10 }
+    fn bozo_val(b: Bozo) -> int {
+        if b.y  { b.x + 10 } else { b.x + 20 }
+    }
 }
 
 #[proven_externally(proof)]
 #[spec(fn() -> usize[spec_seven()])]
 pub fn seven() -> usize {
-    3 + 2 + 2
+    let grmp = 3 + 2 +  2;
+    grmp
 }
 
 #[proven_externally(proof)]
@@ -25,11 +29,28 @@ pub fn ninety() -> usize {
 }
 
 #[proven_externally(proof)]
-#[spec(fn() -> usize[spec_ten()])]
-pub fn ten() -> usize {
-    5 + 5
+#[spec(fn() -> usize[spec_twelve()])]
+pub fn twelve() -> usize {
+    3 + 9
 }
 
+#[refined_by(x: int, y: bool)]
+pub struct Bozo {
+    #[field(usize[x])]
+    x: usize,
+    #[field(bool[y])]
+    y: bool,
+}
+
+#[proven_externally(proof)]
+#[spec(fn(&Bozo[@b]) -> usize[bozo_val(b)])]
+pub fn test_bozo(b: &Bozo) -> usize {
+    if b.y {
+        b.x + 10
+    } else {
+        b.x + 20
+    }
+}
 
 #[proven_externally(proof)]
 #[spec(fn(n: usize) -> usize[spec_sum(n)])]
