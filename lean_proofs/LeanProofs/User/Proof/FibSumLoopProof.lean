@@ -1,4 +1,4 @@
-import LeanProofs.Fluxlib
+import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.FibSumLoop
 
 @[simp]
