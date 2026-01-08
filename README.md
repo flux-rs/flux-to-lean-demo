@@ -18,6 +18,8 @@ The last line adds the `lean_proofs` folder to the vscode workspace.
 
 ## Command Line
 
+Run `runlean.sh`
+
 1. `cargo flux`  generates a bunch of errors
 2. `cp -r UserProofs/* lean_proofs/LeanProofs/User/`
 3. `cargo flux` should generate no errors!

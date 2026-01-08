@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "lean_proofs"
+		}
+	],
+	"settings": {
+		"flux.command": "cargo flux"
+	}
+}
