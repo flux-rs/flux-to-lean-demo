@@ -3,6 +3,8 @@ name = "flux-to-lean-demo"
 version = "0.1.0"
 edition = "2024"
 
+[workspace]
+
 [profile.dev]
 incremental = true
 
