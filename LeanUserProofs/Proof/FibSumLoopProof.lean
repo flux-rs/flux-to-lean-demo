@@ -1,6 +1,8 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.FibSumLoop
 
+namespace F
+
 @[simp]
 def k0 (i : Int) (total : Int) (n : Int) : Prop :=
   0 <= i /\ i <= n /\ total = fib_spec_sum i
@@ -19,3 +21,5 @@ def FibSumLoop_proof : FibSumLoop := by
       . grind
       . grind
       . unfold fib_spec_sum; grind
+
+end F
