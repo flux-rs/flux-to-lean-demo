@@ -1,24 +1,32 @@
-use flux_rs::{attrs::*};
+use flux_rs::attrs::*;
 
-#[spec(fn(n: usize) -> usize[n + 1])]
+#[spec(fn(n: usize) -> usize[n + 2])]
 pub fn incr(n: usize) -> usize {
-   n + 1
+    n + 2
 }
 
 defs! {
+    fn is_prime(n: int) -> prop;
     fn spec_seven() -> int;
     fn spec_twelve() -> int;
     fn spec_ninety() -> int { 90 }
     fn spec_sum(n: int) -> int;
+    fn spec_fib(n: int) -> int;
     fn bozo_val(b: Bozo) -> int {
         if b.y  { b.x + 10 } else { b.x + 20 }
     }
 }
 
 #[proven_externally(proof)]
+#[spec(fn() -> usize{v:is_prime(v)})]
+pub fn test_prop() -> usize {
+    3
+}
+
+#[proven_externally(proof)]
 #[spec(fn() -> usize[spec_seven()])]
 pub fn seven() -> usize {
-    let grmp = 3 + 2 +  2;
+    let grmp = 3 + 2 + 2;
     grmp
 }
 
@@ -45,11 +53,7 @@ pub struct Bozo {
 #[proven_externally(proof)]
 #[spec(fn(&Bozo[@b]) -> usize[bozo_val(b)])]
 pub fn test_bozo(b: &Bozo) -> usize {
-    if b.y {
-        b.x + 10
-    } else {
-        b.x + 20
-    }
+    if b.y { b.x + 10 } else { b.x + 20 }
 }
 
 #[proven_externally(proof)]
@@ -58,29 +62,15 @@ pub fn sum_loop(n: usize) -> usize {
     let mut total = 0;
     let mut i = 0;
     while i < n {
-        // i, total = 0, 0
-        // i, total = 1, 1
-        // i, total = 2, 3
-        // i, total = 3, 6
         i += 1;
         total += i;
     }
-    // i = n + 1
-    // total = sum(n+1)
     total
 }
 
-/*
-defs! {
-    fn fib(n: int) -> int;
-    fn sum(n: int) -> int;
-}
-
-
-
 #[proven_externally]
-#[spec(fn(usize[@n]) -> usize[fib(n)])]
-fn fib_slow(n: usize) -> usize {
+#[spec(fn(usize[@n]) -> usize[spec_fib(n)])]
+pub fn fib_slow(n: usize) -> usize {
     if n <= 1 {
         1
     } else {
@@ -89,8 +79,8 @@ fn fib_slow(n: usize) -> usize {
 }
 
 #[proven_externally]
-#[spec(fn(usize[@n]) -> usize[fib(n)])]
-fn fib_fast(n: usize) -> usize {
+#[spec(fn(usize[@n]) -> usize[spec_fib(n)])]
+pub fn fib_fast(n: usize) -> usize {
     if n <= 1 {
         return 1;
     }
@@ -105,4 +95,13 @@ fn fib_fast(n: usize) -> usize {
     }
     return curr;
 }
-*/
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn test_fast_eq_slow() {
+        for i in 0..20 {
+            assert_eq!(super::fib_fast(i), super::fib_slow(i));
+        }
+    }
+}

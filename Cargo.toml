@@ -9,7 +9,9 @@ edition = "2024"
 incremental = true
 
 [package.metadata.flux]
+cache = true
 enabled = true
+dump_constraint = true
 lean = "check"
 
 [dependencies]
