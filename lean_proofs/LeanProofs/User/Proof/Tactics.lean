@@ -29,5 +29,4 @@ private partial def monkeyCore : TacticM Unit := do
 
 /-- `monkey` decomposes implications (`p → q`) and conjunctions (`p ∧ q`)
     recursively via `intro` and `and_intros`, stopping at leaf goals. -/
-elab "monkey" : tactic => monkeyCore
 elab "smash" : tactic => monkeyCore
