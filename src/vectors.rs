@@ -83,8 +83,10 @@ pub fn test1() {
     let mut v = AVec::new();
     v.push(10);
     v.push(20);
+    v.push(30);
     assert(v[0] == 10);
     assert(v[1] == 20);
+    assert(v[2] == 30);
 }
 
 #[proven_externally(proof)]
