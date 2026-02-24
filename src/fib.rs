@@ -6,7 +6,6 @@ pub fn incr(n: usize) -> usize {
 }
 
 defs! {
-    fn is_prime(n: int) -> prop;
     fn spec_seven() -> int;
     fn spec_twelve() -> int;
     fn spec_ninety() -> int { 90 }
@@ -15,12 +14,6 @@ defs! {
     fn bozo_val(b: Bozo) -> int {
         if b.y  { b.x + 10 } else { b.x + 20 }
     }
-}
-
-#[proven_externally(proof)]
-#[spec(fn() -> usize{v:is_prime(v)})]
-pub fn test_prop() -> usize {
-    3
 }
 
 #[proven_externally(proof)]
