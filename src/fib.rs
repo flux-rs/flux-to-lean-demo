@@ -6,6 +6,9 @@ pub fn incr(n: usize) -> usize {
 }
 
 defs! {
+    fn is_sqrt(res: int, x: int) -> bool {
+        (res * res <= x) && (x < (res + 1) * (res + 1))
+    }
     fn spec_seven() -> int;
     fn spec_twelve() -> int;
     fn spec_ninety() -> int { 90 }
@@ -89,8 +92,31 @@ pub fn fib_fast(n: usize) -> usize {
     return curr;
 }
 
+#[proven_externally(proof)]
+#[spec(fn (x: usize) -> usize{res: is_sqrt(res, x)})]
+pub fn sqrt(x: usize) -> usize {
+    if x == 0 {
+        0
+    } else {
+        let mut i = 0;
+        while i * i <= x {
+            i += 1;
+        }
+        i - 1
+    }
+}
+
 #[cfg(test)]
 mod test {
+
+    #[test]
+    fn test_sqrt() {
+        for x in 0..100 {
+            let res = super::sqrt(x);
+            assert!((res * res <= x) && (x < (res + 1) * (res + 1)))
+        }
+    }
+
     #[test]
     fn test_fast_eq_slow() {
         for i in 0..20 {
