@@ -3,11 +3,13 @@ use flux_rs::attrs::*;
 
 defs! {
     opaque sort Arr<T>;
-    fn arr_empty<T>() -> Arr<T>;
     fn arr_set<T>(a: Arr<T>, pos: int, v: T) -> Arr<T>;
     fn arr_get<T>(a: Arr<T>, pos: int) -> T;
-    fn arr_push<T>(a: Arr<T>, v: T) -> Arr<T>;
-    fn arr_pop<T>(a: Arr<T>) -> Arr<T>;
+    // fn arr_push<T>(a: AVec<T>, v: T) -> AVec<T> {
+    //     { elems : arr_set(a.elems, a.len, v),
+    //       len : a.len + 1
+    //     }
+    // }
 }
 
 #[opaque]
@@ -19,7 +21,7 @@ pub struct AVec<T> {
 
 #[trusted]
 impl<T> AVec<T> {
-    #[spec(fn() -> Self[arr_empty(), 0])]
+    #[spec(fn() -> Self{v: v.len == 0})]
     pub fn new() -> Self {
         Self { inner: Vec::new() }
     }
@@ -34,18 +36,18 @@ impl<T> AVec<T> {
         self.inner.is_empty()
     }
 
-    #[spec(fn(self: &mut Self[@me], v: T) ensures self : AVec<T>[{ elems: arr_push(me.elems, v), len: me.len + 1}])]
+    #[spec(fn(self: &mut Self[@me], v: T) ensures self : AVec<T>{new: new.len == me.len + 1 && new.elems == arr_set(me.elems, me.len, v)})]
     pub fn push(&mut self, v: T) {
         self.inner.push(v)
     }
 
-    #[spec(fn(self: &mut Self[@me]) -> T[arr_get(me.elems, me.len - 1)]
-        requires me.len > 0
-        ensures  self: Self[{ elems: arr_pop(me.elems), len: me.len - 1 }]
-    )]
-    pub fn pop(&mut self) -> T {
-        self.inner.pop().unwrap()
-    }
+    // #[spec(fn(self: &mut Self[@me]) -> T[arr_get(me.elems, me.len - 1)]
+    //     requires me.len > 0
+    //     ensures  self: Self[{ elems: arr_pop(me.elems), len: me.len - 1 }]
+    // )]
+    // pub fn pop(&mut self) -> T {
+    //     self.inner.pop().unwrap()
+    // }
 
     #[spec(fn(&Self[@me], pos: usize{pos < me.len}) -> &T[arr_get(me.elems, pos)])]
     pub fn get(&self, pos: usize) -> &T {

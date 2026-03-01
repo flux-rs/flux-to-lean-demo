@@ -3,7 +3,10 @@ use flux_rs::assert;
 use flux_rs::attrs::*;
 
 defs! {
-    fn is_sorted(v: Arr<int>) -> prop;
+    fn is_sorted_between(v: Arr<int>, lo: int, hi: int) -> prop;
+    fn is_sorted(v: AVec<int>) -> prop {
+        is_sorted_between(v.elems, 0, v.len)
+    }
 }
 
 #[proven_externally(proof)]
@@ -18,7 +21,7 @@ pub fn test1() {
 }
 
 #[proven_externally(proof)]
-#[spec(fn () -> AVec<i32>{ v: is_sorted(v.elems) })]
+#[spec(fn () -> AVec<i32>{ v: is_sorted(v) })]
 pub fn test2() -> AVec<i32> {
     let mut v = AVec::new();
     v.push(1);
@@ -28,7 +31,7 @@ pub fn test2() -> AVec<i32> {
 }
 
 #[proven_externally(proof)]
-#[spec(fn(vec: &mut AVec<usize>[@old]) ensures vec: AVec<usize>{v: is_sorted(v.elems) } )]
+#[spec(fn(vec: &mut AVec<usize>[@old]) ensures vec: AVec<usize>{v: is_sorted_between(v.elems, 0, v.len) } )]
 pub fn init_up(vec: &mut AVec<usize>) {
     let mut i = 0;
     let n = vec.len();

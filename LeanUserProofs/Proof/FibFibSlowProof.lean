@@ -1,6 +1,6 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.FibFibSlow
-import LeanProofs.User.Proof.Tactics
+import LeanProofs.Lib.Tactics
 
 namespace F
 
