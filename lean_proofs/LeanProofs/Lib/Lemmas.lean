@@ -23,6 +23,15 @@ theorem set_get_neq {t0 : Type} [Inhabited t0] : ∀ (a: Arr t0) (i: Int) (v: t0
 theorem set_get_eq {t0 : Type} [Inhabited t0] : ∀ (a : Arr t0) (i : Int) (v : t0),
    (arr_get (arr_set a i v) i) = v := by grind
 
+@[grind =]
+theorem set_get_neq' {t0 : Type} [Inhabited t0] : ∀ (a: Arr t0) (i: Int) (v: t0) (j: Int),
+   i != j -> (arr_set a i v) j = a j
+   := by grind
+
+@[grind =]
+theorem set_get_eq' {t0 : Type} [Inhabited t0] : ∀ (a : Arr t0) (i : Int) (v : t0),
+   (arr_set a i v) i = v := by grind
+
 end LeanProofs.Lib.Lemmas
 
 

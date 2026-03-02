@@ -73,3 +73,22 @@ elab "trivialk" : tactic => trivialkCore
 
 /-- Sequences `trivialk`, `simp`, and `zap`. -/
 macro "zapt" : tactic => `(tactic| (trivialk; simp; zap))
+
+
+
+
+open Lean Elab Tactic Meta in
+private partial def splitAndsAllCore : TacticM Unit := do
+  let ctx ← getLCtx
+  for decl in ctx do
+    if decl.isImplementationDetail then continue
+    let ty ← whnf decl.type
+    if ty.isAppOf ``And then
+      let h  := mkIdent decl.userName
+      let h1 := mkIdent (decl.userName.appendAfter "₁")
+      let h2 := mkIdent (decl.userName.appendAfter "₂")
+      evalTactic (← `(tactic| obtain ⟨$h1, $h2⟩ := $h))
+      splitAndsAllCore
+      return
+
+elab "split_ands_all" : tactic => splitAndsAllCore

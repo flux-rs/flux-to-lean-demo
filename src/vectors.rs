@@ -60,6 +60,14 @@ impl<T> AVec<T> {
     pub fn set(&mut self, pos: usize, v: T) {
         self.inner[pos] = v
     }
+
+    pub fn to_vec(self) -> Vec<T> {
+        self.inner
+    }
+
+    pub fn from_vec(v: Vec<T>) -> Self {
+        Self { inner: v }
+    }
 }
 
 impl<T> std::ops::Index<usize> for AVec<T> {
