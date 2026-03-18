@@ -6,7 +6,7 @@ namespace LeanProofs.Lib.Lemmas
 
 abbrev Arr (t0 : Type) [Inhabited t0] : Type := Int -> t0
 
-@[grind =]
+@[simp, grind =]
 def arr_get {t0 : Type} [Inhabited t0] (arr: Arr t0) (idx: Int) : t0 :=
   arr idx
 

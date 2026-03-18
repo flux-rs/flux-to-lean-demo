@@ -91,6 +91,14 @@ pub fn insertion_sort(arr: &mut AVec<i32>) {
     }
 }
 
+#[proven_externally(proof)]
+#[spec(fn (arr: &mut { AVec<i32>[@me] | is_sorted_between(me.elems, 0, me.len) && 100 < me.len}))]
+pub fn test_sorted(arr: &mut AVec<i32>) {
+    let a0 = arr[0];
+    let a1 = arr[1];
+    assert(a0 <= a1);
+}
+
 #[cfg(test)]
 mod test {
     use crate::sort::insertion_sort;

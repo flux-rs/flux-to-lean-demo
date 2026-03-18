@@ -13,21 +13,15 @@ def inv_insert (k : Int) (arr_elems : (Arr Int)) (arr_len : Int) (_old_elems : (
   /\ arr_len = old_len
   /\ sort_is_sorted_between_exc arr_elems 0 (n + 1) k
 
+open SortInsertKVarSolutions in
 
 def SortInsert_proof : SortInsert := by
   unfold SortInsert
-  exists inv_insert
-  exists SortInsertKVarSolutions.k1
-  exists SortInsertKVarSolutions.k2
-  exists SortInsertKVarSolutions.k3
-  exists SortInsertKVarSolutions.k4
-  exists SortInsertKVarSolutions.k5
-  exists SortInsertKVarSolutions.k6
-  exists SortInsertKVarSolutions.k7
-  exists SortInsertKVarSolutions.k8
-  simp [LeanProofs.Lib.Lemmas.arr_get, inv_insert, SortInsertKVarSolutions.k1, SortInsertKVarSolutions.k2, SortInsertKVarSolutions.k3, SortInsertKVarSolutions.k4, SortInsertKVarSolutions.k5, SortInsertKVarSolutions.k6, SortInsertKVarSolutions.k7, SortInsertKVarSolutions.k8]
+  refine ⟨inv_insert, k1, k2, k3, k4, k5, k6, k7, k8, ?_⟩
+  simp [LeanProofs.Lib.Lemmas.arr_get, inv_insert, k1, k2, k3, k4, k5, k6, k7, k8]
   zap
-  . rename_i old n _ _ _ _ _ k arr _ _ _ _ hyp _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ i j _ _ _ _
+  split_ands_all
+  . rename_i k _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ i j _ _ _ _
     by_cases j < k - 1
     . grind
     . by_cases j = k
@@ -38,7 +32,7 @@ def SortInsert_proof : SortInsert := by
           rw [LeanProofs.Lib.Lemmas.set_get_neq']
           . rw [LeanProofs.Lib.Lemmas.set_get_neq']
             . rw [LeanProofs.Lib.Lemmas.set_get_eq']
-              apply hyp <;> grind
+              apply_assumption <;> grind
             . grind
           . grind
       . have j_gt_k : j > k := by grind
@@ -48,7 +42,7 @@ def SortInsert_proof : SortInsert := by
           . simp_all [LeanProofs.Lib.Lemmas.set_get_eq']
             rw [LeanProofs.Lib.Lemmas.set_get_neq']
             . rw [LeanProofs.Lib.Lemmas.set_get_neq']
-              . apply hyp <;> grind
+              . apply_assumption <;> grind
               . grind
             . grind
           . grind
