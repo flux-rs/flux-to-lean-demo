@@ -28,23 +28,17 @@ def SortInsert_proof : SortInsert := by
       . by_cases i = k - 1
         . grind
         . have i_lt_k_minus_1 : i < k - 1 := by grind
+          have i_ne_k : i ≠ k := by grind
           simp_all []
-          rw [LeanProofs.Lib.Lemmas.set_get_neq']
-          . rw [LeanProofs.Lib.Lemmas.set_get_neq']
-            . rw [LeanProofs.Lib.Lemmas.set_get_eq']
-              apply_assumption <;> grind
-            . grind
-          . grind
+          rename_i hyp _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          apply hyp <;> grind
       . have j_gt_k : j > k := by grind
         by_cases i > k
         . grind
         . by_cases i = k
-          . simp_all [LeanProofs.Lib.Lemmas.set_get_eq']
-            rw [LeanProofs.Lib.Lemmas.set_get_neq']
-            . rw [LeanProofs.Lib.Lemmas.set_get_neq']
-              . apply_assumption <;> grind
-              . grind
-            . grind
+          . simp_all []
+            rename_i hyp _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+            apply hyp <;> grind
           . grind
   . rename_i old n _ _ _ _ _ k arr _ _ _ _ ihyp hyp i j _ _ _
     rcases hyp with ha | hb

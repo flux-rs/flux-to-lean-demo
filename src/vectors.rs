@@ -80,14 +80,6 @@ impl<T> std::ops::Index<usize> for AVec<T> {
     }
 }
 
-// impl<T> std::ops::IndexMut<usize> for AVec<T> {
-//     #[trusted_impl]
-//     #[spec(fn(&mut AVec<T>[@n], usize{v : v < n}) -> &mut T)]
-//     fn index_mut(&mut self, index: usize) -> &mut T {
-//         self.get_mut(index)
-//     }
-// }
-
 #[proven_externally(proof)]
 pub fn test1() {
     let mut v = AVec::new();

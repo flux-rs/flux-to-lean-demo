@@ -64,7 +64,7 @@ pub fn sum_loop(n: usize) -> usize {
     total
 }
 
-#[proven_externally]
+#[proven_externally(proof)]
 #[spec(fn(usize[@n]) -> usize[spec_fib(n)])]
 pub fn fib_slow(n: usize) -> usize {
     if n <= 1 {

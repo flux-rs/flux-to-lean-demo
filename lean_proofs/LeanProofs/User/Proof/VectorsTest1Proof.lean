@@ -8,7 +8,7 @@ open VectorsTest1KVarSolutions
 
 def VectorsTest1_proof : VectorsTest1 := by
   unfold VectorsTest1
+  simp_all []
   zapt
-
 
 end F

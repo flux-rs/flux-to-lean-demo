@@ -3,9 +3,9 @@ use flux_rs::assert;
 use flux_rs::attrs::*;
 
 defs! {
-    fn is_sorted_between(v: Arr<int>, lo: int, hi: int) -> prop;
-    fn is_sorted_between_exc(v: Arr<int>, lo: int, hi: int, exc: int) -> prop;
-    fn is_sorted(v: AVec<int>) -> prop {
+    fn is_sorted_between(v: Arr<int>, lo: int, hi: int) -> bool;
+    fn is_sorted_between_exc(v: Arr<int>, lo: int, hi: int, exc: int) -> bool;
+    fn is_sorted(v: AVec<int>) -> bool {
         is_sorted_between(v.elems, 0, v.len)
     }
 }
@@ -56,7 +56,7 @@ fn insert_rec(arr: &mut AVec<i32>, n: usize, k: usize) {
 }
 
 #[proven_externally(proof)]
-#[spec(fn (arr: &mut { AVec<i32>[@old] | 0 < old.len})
+#[spec(fn (arr: &mut { AVec<i32>[@old] | 1 <= old.len })
        ensures arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, 0, v.len)})]
 pub fn insertion_sort_rec(arr: &mut AVec<i32>) {
     let mut n = 1;
