@@ -160,6 +160,27 @@ private partial def zapTrueExpr (e : Expr) : TacticM ZTR := do
     let backward   ← mkAppM ``And.imp #[backP, backQ]
     return (simplified, backward)
 
+  else if e.isForall then
+    -- goal is `∀ x : α, P x` (or `p → q`): recurse under the binder
+    let α := e.bindingDomain!
+    let (simplified, backward) ← withLocalDecl e.bindingName! e.bindingInfo! α fun x => do
+      let (body', toOrig) ← zapTrueExpr (e.bindingBody!.instantiate1 x)
+      if body' == mkConst ``True then
+        -- The body fully simplified to True; collapse the whole forall to True.
+        -- backward : True → ∀ x : α, original_body  =  fun _ x => toOrig trivial
+        let backward ← withLocalDecl `_h .default (mkConst ``True) fun _h =>
+          mkLambdaFVars #[_h, x] (mkApp toOrig (mkConst ``True.intro))
+        return (mkConst ``True, backward)
+      else
+        -- simplified : ∀ x, body'
+        let simplified ← mkForallFVars #[x] body'
+        -- backward : (∀ x, body') → ∀ x, original_body
+        --          = fun h x => toOrig (h x)
+        let backward ← withLocalDecl `h .default simplified fun h =>
+          mkLambdaFVars #[h, x] (mkApp toOrig (mkApp h x))
+        return (simplified, backward)
+    return (simplified, backward)
+
   else
     -- Leaf: try grind
     match ← tryGrindProve e with
@@ -175,13 +196,15 @@ private partial def zapTrueExpr (e : Expr) : TacticM ZTR := do
       return (e, backward)
 
 open Lean Elab Tactic Meta in
-/-- Simplify the current goal by recursing under `∃` and `∧`, discharging
-    `grind`-provable conjuncts and replacing them with `True`, then cleaning
-    up with `simp [and_true, true_and]`.
+/-- Simplify the current goal by recursing under `∃`, `∧`, and `∀` (/ `→`),
+    discharging `grind`-provable leaves and replacing them with `True`,
+    then cleaning up with `simp [and_true, true_and]`.
 
     Examples:
-    · `⊢ ∃ x, x > 100 ∧ 4 > 2`     ↝  `⊢ ∃ x, x > 100`
-    · `⊢ ∃ x, P x ∧ (Q x → Q x)`   ↝  `⊢ ∃ x, P x` -/
+    · `⊢ ∃ x, x > 100 ∧ 4 > 2`          ↝  `⊢ ∃ x, x > 100`
+    · `⊢ ∃ x, P x ∧ (Q x → Q x)`        ↝  `⊢ ∃ x, P x`
+    · `⊢ ∀ x, P x ∧ 4 > 2`              ↝  `⊢ ∀ x, P x`
+    · `⊢ ∀ x, (x > 0 → x > 0) ∧ Q x`   ↝  `⊢ ∀ x, Q x` -/
 private def zapTrueCore : TacticM Unit := do
   let goal ← getMainGoal
   let ty   ← goal.getType
@@ -191,8 +214,8 @@ private def zapTrueCore : TacticM Unit := do
   let newGoal ← mkFreshExprMVar ty' (kind := .syntheticOpaque)
   goal.assign (mkApp backward newGoal)
   setGoals [newGoal.mvarId!]
-  -- Erase any remaining `_ ∧ True` / `True ∧ _` residue
-  evalTactic (← `(tactic| simp only [and_true, true_and]))
+  -- Erase any remaining `_ ∧ True` / `True ∧ _` residue (no-op if none)
+  try evalTactic (← `(tactic| simp only [and_true, true_and])) catch _ => pure ()
 
 elab "zapTrue" : tactic => zapTrueCore
 
@@ -212,4 +235,46 @@ def ex1 {P Q: Prop}: (P -> Q) ∧ 5 > 0 := by
 
 def ex2 {P Q: Prop}: (P -> P) ∧ Q := by
     zapTrue -- // turns goal into `∀x, Q
+    sorry
+
+def ex3 {P Q: Prop}: P -> (P ∧ Q) := by
+    zapTrue -- // turns goal into `∀x, Q
+    sorry
+
+def ex4: ∃ k1 k2 : Int -> Prop,
+  ∀ x,  ((k1 x /\ 10 < x) -> (0 < x))
+     /\ ∀ y, k2 y /\ 10 < x /\ 20 < y -> 30 < x + y := by
+  zapTrue
+  exists (fun _ => True), (fun _ => True)
+  grind
+
+def ex5: ∃ k1 k2 : Int -> Prop,
+  ∀ x,  (k1 x -> 10 < x -> 0 < x)
+     /\ (∀ y, k2 y -> 10 < x -> 20 < y -> 30 < x + y) := by
+  zapTrue
+  exists (fun _ => True), (fun _ => True)
+  grind
+
+def nl_ex1 {P Q: Prop}: (P -> Q) ∧ 5 > 0 := by
+    zapTrue -- turns goal into `P -> Q`
+    sorry
+
+def nl_ex2 {P Q: Prop}: P ∧ Q ∧ 5 > 0 := by
+    zapTrue -- turns goal into `P ∧ Q`
+    sorry
+
+def nl_ex3 {P Q: Prop}: (P-> P) ∧ Q := by
+    zapTrue -- some_tactic // turns goal into `Q`
+    sorry
+
+def nl_ex4 {P Q: Prop}: P -> (Q ∧ P) := by
+    zapTrue -- turns goal into `P -> Q`
+    sorry
+
+def nl_ex5 {P Q : α -> Prop} : ∀x, (P x -> P x) ∧ Q x := by
+    zapTrue -- some_tactic turns goal into `∀x, Q x`
+    sorry
+
+def nl_ex6 : ∃ x: Nat, x > 100 ∧ 4 > 2 := by
+    zapTrue -- turns goal into ∃ x: Nat, x > 100
     sorry
