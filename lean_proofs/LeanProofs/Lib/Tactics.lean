@@ -134,8 +134,8 @@ private partial def zapTrueExpr (e : Expr) : TacticM ZTR := do
   if e.isAppOfArity ``Exists 2 then
     let α := e.appFn!.appArg!
     let P := e.appArg!
-    -- Recurse under the binder with a fresh free variable x
-    let (P', implFun) ← withLocalDecl `x .default α fun x => do
+    -- Recurse under the binder with a fresh free variable, preserving the original name
+    let (P', implFun) ← withLocalDecl P.bindingName! .default α fun x => do
       let (body', toOrig) ← zapTrueExpr (P.beta #[x])
       -- P' = fun x => simplified body
       let P'      ← mkLambdaFVars #[x] body'
@@ -225,7 +225,7 @@ example : ∃ x : Nat, x > 100 ∧ 4 > 2 := by
   zapTrue  -- goal becomes: ∃ x : Nat, x > 100
   exact ⟨101, by omega⟩
 
-example (P Q : Nat → Prop) : ∃ x y, P x ∧ (Q y → Q y) := by
+example (P Q : Nat → Prop) : ∃ x, P x ∧ (Q x → Q x) := by
   zapTrue  -- goal becomes: ∃ x, P x
   sorry
 
