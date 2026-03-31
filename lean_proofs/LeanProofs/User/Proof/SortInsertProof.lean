@@ -1,8 +1,8 @@
 import LeanProofs.Flux.Prelude
-import LeanProofs.Flux.VC.SortInsert
+import LeanProofs.Flux.VC.SortInsertSwap
 import LeanProofs.Lib.Tactics
-import LeanProofs.Lib.Lemmas
 
+open Classical
 
 namespace F
 
@@ -13,15 +13,15 @@ def inv_insert (k : Int) (arr_elems : (Arr Int)) (arr_len : Int) (_old_elems : (
   /\ arr_len = old_len
   /\ sort_is_sorted_between_exc arr_elems 0 (n + 1) k
 
-open SortInsertKVarSolutions in
+open SortInsertSwapKVarSolutions in
 
-def SortInsert_proof : SortInsert := by
-  unfold SortInsert
-  refine ⟨inv_insert, k1, k2, k3, k4, k5, k6, k7, k8, ?_⟩
-  simp [LeanProofs.Lib.Lemmas.arr_get, inv_insert, k1, k2, k3, k4, k5, k6, k7, k8]
+def SortInsertSwap_proof : SortInsertSwap := by
+  unfold SortInsertSwap
+  exists inv_insert; exists k1; exists k2; exists k3
+  simp [LeanProofs.Lib.Lemmas.arr_get, inv_insert, k1, k2, k3]
   zap
   split_ands_all
-  . rename_i k _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ i j _ _ _ _
+  . rename_i _ k _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ i j _ _ _ _
     by_cases j < k - 1
     . grind
     . by_cases j = k
@@ -53,5 +53,7 @@ def SortInsert_proof : SortInsert := by
     . obtain ⟨hb1, hb2⟩ := hb
       have k_0 : k = 0 := by grind
       grind
+
+
 
 end F

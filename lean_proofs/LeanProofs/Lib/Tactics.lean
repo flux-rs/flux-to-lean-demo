@@ -81,13 +81,20 @@ open Lean Elab Tactic Meta in
 private partial def splitAndsAllCore : TacticM Unit := do
   let ctx ← getLCtx
   for decl in ctx do
-    if decl.isImplementationDetail then continue
-    let ty ← whnf decl.type
+    let ty ← whnfR decl.type
     if ty.isAppOf ``And then
-      let h  := mkIdent decl.userName
-      let h1 := mkIdent (decl.userName.appendAfter "₁")
-      let h2 := mkIdent (decl.userName.appendAfter "₂")
-      evalTactic (← `(tactic| obtain ⟨$h1, $h2⟩ := $h))
+      let lhs    := ty.appFn!.appArg!
+      let rhs    := ty.appArg!
+      let fvar   := mkFVar decl.fvarId
+      let h1Name := decl.userName.appendAfter "₁"
+      let h2Name := decl.userName.appendAfter "₂"
+      let h1Val  ← mkAppM ``And.left  #[fvar]
+      let h2Val  ← mkAppM ``And.right #[fvar]
+      let goal   ← getMainGoal
+      let g1     ← goal.assert h1Name lhs h1Val
+      let g2     ← g1.assert   h2Name rhs h2Val
+      let g3     ← g2.tryClearMany #[decl.fvarId]
+      replaceMainGoal [g3]
       splitAndsAllCore
       return
 
