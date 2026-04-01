@@ -6,6 +6,7 @@ defs! {
     fn is_sorted_between(v: Arr<int>, lo: int, hi: int) -> bool;
     fn is_sorted_between_exc(v: Arr<int>, lo: int, hi: int, exc: int) -> bool;
     fn is_partitioned_by(v: Arr<int>, lo: int, mid: int, hi: int, pivot: int) -> bool;
+    fn is_perm(left: Arr<int>, right: Arr<int>, lo: int, hi: int) -> bool;
     fn is_sorted(v: AVec<int>) -> bool {
         is_sorted_between(v.elems, 0, v.len)
     }
@@ -115,7 +116,7 @@ pub fn test_sorted(arr: &mut AVec<i32>) {
 #[proven_externally(proof)]
 #[spec(fn (arr: &mut AVec<i32>[@old], lo: usize{lo < old.len}, hi: usize{lo < hi && hi < old.len})
        -> usize[#p]
-       ensures arr: AVec<i32>{v: v.len == old.len && is_partitioned_by(v.elems, lo, p, hi, p)})]
+       ensures arr: AVec<i32>{v: v.len == old.len && is_partitioned_by(v.elems, lo, p, hi, p) && is_perm(old.elems, v.elems, lo, hi)})]
 fn partition(arr: &mut AVec<i32>, lo: usize, hi: usize) -> usize {
     let pivot = arr[hi];
     let mut i = lo;
@@ -133,7 +134,7 @@ fn partition(arr: &mut AVec<i32>, lo: usize, hi: usize) -> usize {
 
 #[proven_externally(proof)]
 #[spec(fn (arr: &mut AVec<i32>[@old], lo: usize{lo < old.len}, hi: usize{hi < old.len})
-       ensures arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, lo, hi + 1)})]
+       ensures arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, lo, hi + 1) && is_perm(old.elems, v.elems, lo, hi)})]
 fn quicksort_range(arr: &mut AVec<i32>, lo: usize, hi: usize) {
     if lo < hi {
         let p = partition(arr, lo, hi);
