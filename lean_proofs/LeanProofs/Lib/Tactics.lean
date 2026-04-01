@@ -101,6 +101,57 @@ private partial def splitAndsAllCore : TacticM Unit := do
 elab "split_ands_all" : tactic => splitAndsAllCore
 
 
+open Lean Elab Tactic Meta in
+partial def splitHypOrsOnGoal (g : MVarId) : TacticM (List MVarId) := do
+  MVarId.withContext g do
+    let mut didSplit := false
+    for localDecl in (← getLCtx) do
+      setGoals [g]
+      let type ← instantiateMVars localDecl.type
+      if localDecl.isAuxDecl || !type.isAppOf ``Or then
+        continue
+      let hName := mkIdent localDecl.userName
+      evalTactic (← `(tactic| cases $hName:ident))
+      didSplit := true
+      break
+
+    if didSplit then
+      let gs ← getGoals
+      let mut out := []
+      for g' in gs do
+        let gs' ← splitHypOrsOnGoal g'
+        out := out ++ gs'
+      return out
+    else
+      return [g]
+
+open Lean Elab Tactic Meta in
+partial def split_hyp_ors : TacticM Unit := do
+  setGoals (← splitHypOrsOnGoal (← getMainGoal))
+
+elab "split_hyp_ors" : tactic =>
+  split_hyp_ors
+
+
+open Lean Elab Tactic Meta in
+partial def split_hyp_ands :=
+  withMainContext do
+    let mut done := true
+    for localDecl in (← getLCtx) do
+      let type ← instantiateMVars localDecl.type
+      if localDecl.isAuxDecl || !type.isAppOf `And then
+        continue
+      let hName := mkIdent localDecl.userName
+      let rName := mkIdent (localDecl.userName.appendAfter "_right")
+      evalTactic (← `(tactic| rcases $hName:ident with ⟨$hName, $(rName):ident⟩))
+      done := false
+    if !done then
+      split_hyp_ands
+
+elab "split_hyp_ands" : tactic =>
+  split_hyp_ands
+
+
 -- ---------------------------------------------------------------------------
 -- zapTrue: simplify a goal by replacing grind-provable conjuncts with True
 -- ---------------------------------------------------------------------------
