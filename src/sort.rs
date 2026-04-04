@@ -147,6 +147,28 @@ fn quicksort_range(arr: &mut AVec<i32>, lo: usize, hi: usize) {
     }
 }
 
+/*
+
+    DEF
+    bigger arr lo p  := ∀ (ix : Int), lo ≤ ix → ix < p → arr ix ≤ arr p
+    smaller arr p hi := ∀ (ix : Int), p ≤ ix → ix < hi → arr p ≤ arr ix
+
+    THM
+    bigger a lo p -> sort_is_perm a a' lo (p-1) -> bigger a' lo p
+
+    THM
+    bigger a lo p -> sort_is_perm a a' (p+1) hi -> bigger a' lo p
+
+    THM
+    smaller a p hi -> sort_is_perm a a' (p+1) hi -> smaller a' p hi
+
+    THM
+    sorted_between a lo p -> sorted_between a (p+1) hi ->
+    bigger a lo p -> smaller a p hi ->
+    sorted_between a lo hi
+
+*/
+
 #[proven_externally(proof)]
 #[spec(fn (arr: &mut AVec<i32>[@old])
        ensures arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, 0, v.len)})]
@@ -157,6 +179,11 @@ pub fn quicksort(arr: &mut AVec<i32>) {
     }
 }
 
+/*
+[ 10, 5 ], lo=0, hi=1
+
+[ 5, 10 ], p=0
+*/
 #[cfg(test)]
 mod test {
 

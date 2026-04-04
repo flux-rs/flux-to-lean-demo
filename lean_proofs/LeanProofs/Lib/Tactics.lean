@@ -100,7 +100,6 @@ private partial def splitAndsAllCore : TacticM Unit := do
 
 elab "split_ands_all" : tactic => splitAndsAllCore
 
-
 open Lean Elab Tactic Meta in
 partial def splitHypOrsOnGoal (g : MVarId) : TacticM (List MVarId) := do
   MVarId.withContext g do
@@ -111,6 +110,7 @@ partial def splitHypOrsOnGoal (g : MVarId) : TacticM (List MVarId) := do
       if localDecl.isAuxDecl || !type.isAppOf ``Or then
         continue
       let hName := mkIdent localDecl.userName
+      -- let hName := mkIdent (← mkFreshId)
       evalTactic (← `(tactic| cases $hName:ident))
       didSplit := true
       break
@@ -127,30 +127,16 @@ partial def splitHypOrsOnGoal (g : MVarId) : TacticM (List MVarId) := do
 
 open Lean Elab Tactic Meta in
 partial def split_hyp_ors : TacticM Unit := do
-  setGoals (← splitHypOrsOnGoal (← getMainGoal))
+  let goals ← getGoals
+  let new_goals ← splitHypOrsOnGoal (← getMainGoal)
+  if new_goals.all goals.contains then
+    throwError "no dijunctions found in hypotheses"
+  else
+    setGoals new_goals
+
 
 elab "split_hyp_ors" : tactic =>
   split_hyp_ors
-
-
-open Lean Elab Tactic Meta in
-partial def split_hyp_ands :=
-  withMainContext do
-    let mut done := true
-    for localDecl in (← getLCtx) do
-      let type ← instantiateMVars localDecl.type
-      if localDecl.isAuxDecl || !type.isAppOf `And then
-        continue
-      let hName := mkIdent localDecl.userName
-      let rName := mkIdent (localDecl.userName.appendAfter "_right")
-      evalTactic (← `(tactic| rcases $hName:ident with ⟨$hName, $(rName):ident⟩))
-      done := false
-    if !done then
-      split_hyp_ands
-
-elab "split_hyp_ands" : tactic =>
-  split_hyp_ands
-
 
 -- ---------------------------------------------------------------------------
 -- zapTrue: simplify a goal by replacing grind-provable conjuncts with True
@@ -277,62 +263,119 @@ private def zapTrueCore : TacticM Unit := do
 
 elab "zapTrue" : tactic => zapTrueCore
 
+open Lean Meta Elab Tactic in
+
+partial def split_hyp_ands (n : Nat) :=
+  withMainContext do
+    let mut done := true
+    for localDecl in (← getLCtx) do
+      let type ← instantiateMVars localDecl.type
+      if localDecl.isAuxDecl || !type.isAppOf `And then
+        continue
+      -- UGLY let lName := mkIdent (← mkFreshId)
+      -- UGLY let rName := mkIdent (← mkFreshId)
+      let lName := mkIdent (← Term.mkFreshBinderName)
+      let rName := mkIdent (← Term.mkFreshBinderName)
+      let hName := mkIdent localDecl.userName
+      evalTactic (← `(tactic| rcases $hName:ident with ⟨$(lName):ident, $(rName):ident⟩))
+      done := false
+    if !done then
+      split_hyp_ands (n + 1)
+      pure ()
+    else if n = 0 then
+      throwError "no conjunctions found in hypotheses"
+
+elab "split_hyp_ands" : tactic =>
+  split_hyp_ands 0
 
 
-example : ∃ x : Nat, x > 100 ∧ 4 > 2 := by
-  zapTrue  -- goal becomes: ∃ x : Nat, x > 100
-  exact ⟨101, by omega⟩
+open Lean Meta Elab Tactic in
 
-example (P Q : Nat → Prop) : ∃ x, P x ∧ (Q x → Q x) := by
-  zapTrue  -- goal becomes: ∃ x, P x
-  sorry
+partial def split_hyp_exists (n : Nat) :=
+  withMainContext do
+    let mut done := true
+    for localDecl in (← getLCtx) do
+      let type ← instantiateMVars localDecl.type
+      if localDecl.isAuxDecl || !type.isAppOf `Exists then
+        continue
+      let hName := mkIdent localDecl.userName
+      -- let lName := mkIdent (localDecl.userName.appendAfter "exi")
+      -- let rName := mkIdent (localDecl.userName.appendAfter "body")
+      -- let lName := mkIdent (← mkFreshId)
+      -- let rName := mkIdent (← mkFreshId)
+      let lName := mkIdent (← Term.mkFreshBinderName)
+      let rName := mkIdent (← Term.mkFreshBinderName)
+      evalTactic (← `(tactic| rcases $hName:ident with ⟨$(lName):ident, $(rName):ident⟩))
+      done := false
+    if !done then
+      split_hyp_exists (n + 1)
+      pure ()
+    else if n = 0 then
+      throwError "no existential statements found in hypotheses"
 
-def ex1 {P Q: Prop}: (P -> Q) ∧ 5 > 0 := by
-    zapTrue -- some_tactic // turns goal into `P -> Q`
-    sorry
+elab "split_hyp_exists" : tactic =>
+  split_hyp_exists 0
 
-def ex2 {P Q: Prop}: (P -> P) ∧ Q := by
-    zapTrue -- // turns goal into `∀x, Q
-    sorry
+macro "split_hyp_and_exist" : tactic =>
+  `(tactic| repeat (first | split_hyp_ands | split_hyp_exists))
 
-def ex3 {P Q: Prop}: P -> (P ∧ Q) := by
-    zapTrue -- // turns goal into `∀x, Q
-    sorry
+macro "split_hyps" : tactic =>
+  `(tactic| repeat (any_goals (first | split_hyp_ands | split_hyp_ors | split_hyp_exists)))
 
-def ex4: ∃ k1 k2 : Int -> Prop,
-  ∀ x,  ((k1 x /\ 10 < x) -> (0 < x))
-     /\ ∀ y, k2 y /\ 10 < x /\ 20 < y -> 30 < x + y := by
-  zapTrue
-  exists (fun _ => True), (fun _ => True)
-  grind
+-- example : ∃ x : Nat, x > 100 ∧ 4 > 2 := by
+--   zapTrue  -- goal becomes: ∃ x : Nat, x > 100
+--   exact ⟨101, by omega⟩
 
-def ex5: ∃ k1 k2 : Int -> Prop,
-  ∀ x,  (k1 x -> 10 < x -> 0 < x)
-     /\ (∀ y, k2 y -> 10 < x -> 20 < y -> 30 < x + y) := by
-  zapTrue
-  exists (fun _ => True), (fun _ => True)
-  grind
+-- example (P Q : Nat → Prop) : ∃ x, P x ∧ (Q x → Q x) := by
+--   zapTrue  -- goal becomes: ∃ x, P x
+--   sorry
 
-def nl_ex1 {P Q: Prop}: (P -> Q) ∧ 5 > 0 := by
-    zapTrue -- turns goal into `P -> Q`
-    sorry
+-- def ex1 {P Q: Prop}: (P -> Q) ∧ 5 > 0 := by
+--     zapTrue -- some_tactic // turns goal into `P -> Q`
+--     sorry
 
-def nl_ex2 {P Q: Prop}: P ∧ Q ∧ 5 > 0 := by
-    zapTrue -- turns goal into `P ∧ Q`
-    sorry
+-- def ex2 {P Q: Prop}: (P -> P) ∧ Q := by
+--     zapTrue -- // turns goal into `∀x, Q
+--     sorry
 
-def nl_ex3 {P Q: Prop}: (P-> P) ∧ Q := by
-    zapTrue -- some_tactic // turns goal into `Q`
-    sorry
+-- def ex3 {P Q: Prop}: P -> (P ∧ Q) := by
+--     zapTrue -- // turns goal into `∀x, Q
+--     sorry
 
-def nl_ex4 {P Q: Prop}: P -> (Q ∧ P) := by
-    zapTrue -- turns goal into `P -> Q`
-    sorry
+-- def ex4: ∃ k1 k2 : Int -> Prop,
+--   ∀ x,  ((k1 x /\ 10 < x) -> (0 < x))
+--      /\ ∀ y, k2 y /\ 10 < x /\ 20 < y -> 30 < x + y := by
+--   zapTrue
+--   exists (fun _ => True), (fun _ => True)
+--   grind
 
-def nl_ex5 {P Q : α -> Prop} : ∀x, (P x -> P x) ∧ Q x := by
-    zapTrue -- some_tactic turns goal into `∀x, Q x`
-    sorry
+-- def ex5: ∃ k1 k2 : Int -> Prop,
+--   ∀ x,  (k1 x -> 10 < x -> 0 < x)
+--      /\ (∀ y, k2 y -> 10 < x -> 20 < y -> 30 < x + y) := by
+--   zapTrue
+--   exists (fun _ => True), (fun _ => True)
+--   grind
 
-def nl_ex6 : ∃ x: Nat, x > 100 ∧ 4 > 2 := by
-    zapTrue -- turns goal into ∃ x: Nat, x > 100
-    sorry
+-- def nl_ex1 {P Q: Prop}: (P -> Q) ∧ 5 > 0 := by
+--     zapTrue -- turns goal into `P -> Q`
+--     sorry
+
+-- def nl_ex2 {P Q: Prop}: P ∧ Q ∧ 5 > 0 := by
+--     zapTrue -- turns goal into `P ∧ Q`
+--     sorry
+
+-- def nl_ex3 {P Q: Prop}: (P-> P) ∧ Q := by
+--     zapTrue -- some_tactic // turns goal into `Q`
+--     sorry
+
+-- def nl_ex4 {P Q: Prop}: P -> (Q ∧ P) := by
+--     zapTrue -- turns goal into `P -> Q`
+--     sorry
+
+-- def nl_ex5 {P Q : α -> Prop} : ∀x, (P x -> P x) ∧ Q x := by
+--     zapTrue -- some_tactic turns goal into `∀x, Q x`
+--     sorry
+
+-- def nl_ex6 : ∃ x: Nat, x > 100 ∧ 4 > 2 := by
+--     zapTrue -- turns goal into ∃ x: Nat, x > 100
+--     sorry
