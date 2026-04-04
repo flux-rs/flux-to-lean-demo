@@ -28,85 +28,32 @@ def SortPartition_proof : SortPartition := by
   zap
   . rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ arr' _ h
     obtain ⟨ old_def , _ ⟩ := h
-    . have _ : arr'.elems hi = arr.elems hi := by rw [old_def]; grind -- WTF?
-      grind
+    . rw [old_def]; grind
     . grind
-  . sorry -- perm
-  . -- frame < i
+  . -- perm
+    rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _  j arr i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  arr' i' h  ix _ _
+    obtain ⟨ old_def , _ ⟩ := h
+    . rw [old_def]; grind
+    . grind
+  . -- frame ix < i
     rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  arr' _ h ix _
-    sorry
-  . sorry
-  . sorry
-  . sorry
-
-
-  -- zap
-  -- . split_hyps  <;> try grind
-  --   . rename_i upd _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-  --     rw [upd] ; grind -- WTF!
-
-  -- . split_hyps <;> try grind
-  --   . sorry
-  --   -- . apply swap_is_perm <;> try grind
-  --   -- simp_all [is_perm, is_frame]; grind
-
-  -- . split_hyps <;> try grind
-  --   . rename_i upd _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-  --     rw [upd] ; grind
-  -- . split_hyps <;> try grind
-  --   . simp_all []; grind
-  -- . split_hyps <;> try grind
-  --   . simp_all; sorry
-  -- . rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _  _ _ _ _ _ _ _ _ _ _ _ _ arr' i' h ix _ _
-  --   split_hyps
-  --   . rename_i new_def _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-  --     have _ : arr'.elems j = arr.elems i := by
-  --       rw [new_def]
-  --       apply swap_val_j'
-  --     by_cases h_ix : ix = j
-  --     . rename_i new_def _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-  --       rw [h_ix]
-  --       rename_i bb
-  --       have hh : arr'.elems hi = arr.elems hi := by
-  --         rw [new_def]
-  --         sorry
-  --       rw [hh, bb]
-  --       -- rename_i foo _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-  --       -- apply foo
-  --       sorry
-  --       -- grind
-  --     . sorry
-  --   . sorry
-  -- . rename_i h
-  --   rename_i old lo hi _ _ _ _ _ _ _ _ _  _ _ _ j new i _  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ new' _
-  --   rcases h with hp | hq
-  --   . obtain ⟨ new_def , _ ⟩ := hp
-  --     have new_elems' : new'.elems = swap new.elems i j := by grind [swap]
-  --     rw [new_elems']
-  --     apply swap_is_perm <;> try grind
-  --   . grind
-
-  -- . rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j new i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ new' _ _ i' _
-  --   split_hyps
-  --   . simp_all [is_frame]; grind
-  --   . simp_all [is_frame]
-  -- . rename_i old lo hi _  _ _ _ _ _ _ _ _ _ _ _ j new i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  new' _ h ix _
-  --   split_hyps
-  --   . have _ : new'.elems ix = new.elems ix := by simp_all []; grind
-  --     simp_all [is_frame]
-  --   . simp_all [is_frame]
-  -- . rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j new i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ new' i' h ix _ _
-  --   split_hyps
-  --   . have pivot_eq : new.elems hi = new'.elems hi := by simp_all; grind
-  --     by_cases h_ix : ix = i
-  --     . have _ : new'.elems i = new.elems j := by
-  --         rename_i new_def _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-  --         rw [new_def]; grind
-  --       grind
-  --     . rename_i new_def _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-  --       have _ : ix < j := by grind
-  --       have _ : new'.elems ix = new.elems ix := by simp [new_def]; grind
-  --       grind
-  --   . grind
+    obtain ⟨ old_def , _ ⟩ := h
+    . rw [old_def]; grind
+    . grind
+  . -- frame hi < *
+    rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  arr' _ h ix _
+    obtain ⟨ old_def , _ ⟩ := h
+    . rw [old_def]; grind
+    . grind
+  . -- lo <= ix < i -> arr ix <= pivot
+    rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ arr' i' h ix _ _
+    obtain ⟨ old_def , _ ⟩ := h
+    . rw [old_def]; grind
+    . grind
+  . -- i <= ix < j -> pivot <= arr ix
+    rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ arr' i' h ix _ _
+    obtain ⟨ old_def , _ ⟩ := h
+    . rw [old_def]; grind
+    . grind
 
 end F
