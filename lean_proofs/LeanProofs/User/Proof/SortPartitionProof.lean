@@ -26,42 +26,57 @@ def SortPartition_proof : SortPartition := by
   exists k0; exists part_inv; exists k2; exists k3
   simp [LeanProofs.Lib.Lemmas.arr_get, LeanProofs.Lib.Lemmas.arr_set, sort_is_perm, part_inv, k0, k2, k3]
   zap
-  . split_hyps  <;> try grind
-    . rename_i upd _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-      rw [upd] ; grind -- WTF!
+  . rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ arr' _ h
+    obtain ⟨ old_def , _ ⟩ := h
+    . have _ : arr'.elems hi = arr.elems hi := by rw [old_def]; grind -- WTF?
+      grind
+    . grind
+  . sorry -- perm
+  . -- frame < i
+    rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  arr' _ h ix _
+    sorry
+  . sorry
+  . sorry
+  . sorry
 
-  . split_hyps <;> try grind
-    . sorry
-    -- . apply swap_is_perm <;> try grind
-    -- simp_all [is_perm, is_frame]; grind
 
-  . split_hyps <;> try grind
-    . rename_i upd _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-      rw [upd] ; grind
-  . split_hyps <;> try grind
-    . simp_all []; grind
-  . split_hyps <;> try grind
-    . simp_all; sorry
-  . rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _  _ _ _ _ _ _ _ _ _ _ _ _ arr' i' h ix _ _
-    split_hyps
-    . rename_i new_def _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-      have _ : arr'.elems j = arr.elems i := by
-        rw [new_def]
-        apply swap_val_j'
-      by_cases h_ix : ix = j
-      . rename_i new_def _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-        rw [h_ix]
-        rename_i bb
-        have hh : arr'.elems hi = arr.elems hi := by
-          rw [new_def]
-          sorry
-        rw [hh, bb]
-        -- rename_i foo _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-        -- apply foo
-        sorry
-        -- grind
-      . sorry
-    . sorry
+  -- zap
+  -- . split_hyps  <;> try grind
+  --   . rename_i upd _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  --     rw [upd] ; grind -- WTF!
+
+  -- . split_hyps <;> try grind
+  --   . sorry
+  --   -- . apply swap_is_perm <;> try grind
+  --   -- simp_all [is_perm, is_frame]; grind
+
+  -- . split_hyps <;> try grind
+  --   . rename_i upd _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  --     rw [upd] ; grind
+  -- . split_hyps <;> try grind
+  --   . simp_all []; grind
+  -- . split_hyps <;> try grind
+  --   . simp_all; sorry
+  -- . rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _  _ _ _ _ _ _ _ _ _ _ _ _ arr' i' h ix _ _
+  --   split_hyps
+  --   . rename_i new_def _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  --     have _ : arr'.elems j = arr.elems i := by
+  --       rw [new_def]
+  --       apply swap_val_j'
+  --     by_cases h_ix : ix = j
+  --     . rename_i new_def _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  --       rw [h_ix]
+  --       rename_i bb
+  --       have hh : arr'.elems hi = arr.elems hi := by
+  --         rw [new_def]
+  --         sorry
+  --       rw [hh, bb]
+  --       -- rename_i foo _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  --       -- apply foo
+  --       sorry
+  --       -- grind
+  --     . sorry
+  --   . sorry
   -- . rename_i h
   --   rename_i old lo hi _ _ _ _ _ _ _ _ _  _ _ _ j new i _  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ new' _
   --   rcases h with hp | hq
