@@ -75,7 +75,48 @@ def SortQuicksortRange_proof : SortQuicksortRange := by
   . simp_all [k0]
   . grind [k0]
   . -- k1
-    sorry
+    rename_i old lo hi _ _ _ _ _ _ p a0 _ _ _ a1 hyp0 _
+    rw [k1]
+    right
+    repeat constructor
+    . simp_all [sort_is_partitioned_by]
+    . simp_all [sort_is_partitioned_by]
+    . repeat constructor
+      . simp_all [sort_is_perm]
+      . simp_all [sort_is_perm]
+      . constructor
+        . constructor
+          constructor
+          . exists a1
+            . have p_eq : (p - 1) + 1 = p := by grind
+              rw [p_eq]
+              rw [k0] at hyp0
+              split_hyp_ors <;> grind
+          . omega
+        . grind
+      -- . repeat constructor
+      --   . have p_eq : (p - 1) + 1 = p := by grind
+      --     rw [p_eq]
+      --     rename_i hyp0 _
+      --     rw [k0] at hyp0
+      --     split_hyp_ors
+      --     . rename_i hh
+      --       obtain ⟨ ⟨ a1' , ⟨ hh', _ ⟩  ⟩ , _⟩ := hh
+      --       sorry
+
+      --     . omega
+      --   . repeat constructor <;> try grind
+      --     . simp_all [is_perm]; grind
+      --     . simp_all [is_frame]
+      --     . rename_i  hyp0 _
+      --       repeat constructor
+      --       . sorry
+      --       . repeat constructor
+      --         . sorry
+      --         . sorry
+      --   . grind
+      --   . grind
+
   . grind [k0]
   . grind [k0]
   . -- k1
