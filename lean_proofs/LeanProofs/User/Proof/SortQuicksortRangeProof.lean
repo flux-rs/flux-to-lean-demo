@@ -94,33 +94,31 @@ def SortQuicksortRange_proof : SortQuicksortRange := by
               split_hyp_ors <;> grind
           . omega
         . grind
-      -- . repeat constructor
-      --   . have p_eq : (p - 1) + 1 = p := by grind
-      --     rw [p_eq]
-      --     rename_i hyp0 _
-      --     rw [k0] at hyp0
-      --     split_hyp_ors
-      --     . rename_i hh
-      --       obtain ⟨ ⟨ a1' , ⟨ hh', _ ⟩  ⟩ , _⟩ := hh
-      --       sorry
-
-      --     . omega
-      --   . repeat constructor <;> try grind
-      --     . simp_all [is_perm]; grind
-      --     . simp_all [is_frame]
-      --     . rename_i  hyp0 _
-      --       repeat constructor
-      --       . sorry
-      --       . repeat constructor
-      --         . sorry
-      --         . sorry
-      --   . grind
-      --   . grind
 
   . grind [k0]
   . grind [k0]
   . -- k1
-    sorry
+    rename_i old lo hi _ _ _ _ _ _ p a0 _ _ _ a1 hyp0 _ a1 _ _
+    rw [k1]
+    left
+    constructor
+    . exists a1
+      grind
+    . constructor
+      . grind
+      . constructor
+        . grind
+        . constructor
+          . rw [k0] at hyp0
+            split_hyp_ors
+            . constructor
+              constructor
+              . rename_i hh; obtain ⟨_ , _⟩ := hh; grind
+              . omega
+            . grind
+          . grind
+
+
   . simp_all [k1]; grind
   . -- sorted_between
     rename_i old lo hi _ _ _ _ _ _ p a0 hyp0 _ _ a1 hyp1 a2 hyp2
