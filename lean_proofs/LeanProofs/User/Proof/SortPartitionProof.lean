@@ -24,7 +24,7 @@ open SortPartitionKVarSolutions in
 def SortPartition_proof : SortPartition := by
   unfold SortPartition
   exists k0; exists part_inv; exists k2; exists k3
-  simp [LeanProofs.Lib.Lemmas.arr_get, LeanProofs.Lib.Lemmas.arr_set, sort_is_perm, part_inv, k0, k2, k3]
+  simp [LeanProofs.Lib.Lemmas.arr_get, LeanProofs.Lib.Lemmas.arr_set, sort_is_perm, is_frame, is_perm, part_inv, k0, k2, k3]
   zap
   . rename_i old lo hi _ _ _ _ _ _ _ _ _ _ _ _ j arr i _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ arr' _ h
     obtain ⟨ old_def , _ ⟩ := h

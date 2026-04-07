@@ -52,7 +52,7 @@ def SortPartition := ∃ k0 : (a0 : (VectorsAVec Int)) -> (a1 : Int) -> (a2 : In
                ((hi₀ < (VectorsAVec.len a'₂))) ∧
                (((VectorsAVec.len a'₂) ≥ 0) ->
                 (((VectorsAVec.len a'₂) = (VectorsAVec.len old₀))) ∧
-                ((sort_is_partitioned_by (let a'₄ := (vectors_arr_get (t0 := Int) (VectorsAVec.elems a'₂) i₀); (let a'₅ := (vectors_arr_get (t0 := Int) (VectorsAVec.elems a'₂) hi₀); (vectors_arr_set (t0 := Int) (vectors_arr_set (t0 := Int) (VectorsAVec.elems a'₂) i₀ a'₅) hi₀ a'₄))) lo₀ i₀ hi₀ i₀)) ∧
+                ((sort_is_partitioned_by (let a'₄ := (vectors_arr_get (t0 := Int) (VectorsAVec.elems a'₂) i₀); (let a'₅ := (vectors_arr_get (t0 := Int) (VectorsAVec.elems a'₂) hi₀); (vectors_arr_set (t0 := Int) (vectors_arr_set (t0 := Int) (VectorsAVec.elems a'₂) i₀ a'₅) hi₀ a'₄))) lo₀ i₀ (hi₀ + 1) i₀)) ∧
                 ((sort_is_perm (VectorsAVec.elems old₀) (let a'₆ := (vectors_arr_get (t0 := Int) (VectorsAVec.elems a'₂) i₀); (let a'₇ := (vectors_arr_get (t0 := Int) (VectorsAVec.elems a'₂) hi₀); (vectors_arr_set (t0 := Int) (vectors_arr_set (t0 := Int) (VectorsAVec.elems a'₂) i₀ a'₇) hi₀ a'₆))) lo₀ hi₀)) ∧
                 ((lo₀ ≤ i₀)) ∧
                 ((i₀ ≤ hi₀))

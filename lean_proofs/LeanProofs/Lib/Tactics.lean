@@ -322,6 +322,23 @@ macro "split_hyp_and_exist" : tactic =>
 macro "split_hyps" : tactic =>
   `(tactic| repeat (any_goals (first | split_hyp_ands | split_hyp_ors | split_hyp_exists)))
 
+syntax "flatten_and_solve_leafs" ("(" tactic ")") : tactic
+
+macro_rules
+  | `(tactic| flatten_and_solve_leafs ( $t:tactic )) =>
+    `(tactic|
+      repeat (any_goals
+        first
+          | (intro)
+          | apply And.intro
+          | $t:tactic
+      )
+    )
+
+
+
+
+
 -- example : ∃ x : Nat, x > 100 ∧ 4 > 2 := by
 --   zapTrue  -- goal becomes: ∃ x : Nat, x > 100
 --   exact ⟨101, by omega⟩

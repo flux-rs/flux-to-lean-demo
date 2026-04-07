@@ -6,16 +6,16 @@ import LeanProofs.Lib.Tactics
 open Classical
 namespace F
 
-@[simp]
+-- @[simp]
 noncomputable def is_perm (old new : Arr Int) (lo hi : Int) : Prop :=
   (∀ i, (lo <= i && i <= hi) -> (∃ j, lo <= j /\ j <= hi /\ new i = old j))
 
 
-@[simp]
+-- @[simp]
 noncomputable def is_frame (old new : Arr Int) (lo hi : Int) : Prop :=
   (∀ i, i < lo -> new i = old i) /\ (∀ i, (hi < i) -> new i = old i)
 
-@[simp]
+-- @[simp]
 noncomputable def sort_is_perm (old new : Arr Int) (lo hi : Int) : Prop :=
   is_perm old new lo hi /\ is_frame old new lo hi
 
