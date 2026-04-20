@@ -15,3 +15,5 @@ log/
 .vscode/
 
 .liquid
+
+lean_proofs/.lake/
