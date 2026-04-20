@@ -1,20 +1,14 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.FibSqrt
-import LeanProofs.Lib.Tactics
+import LeanFixpoint
 
 namespace F
 
-@[simp]
-def fib_sqrt_inv(i: Int) (x: Int) : Prop :=
-  i >= 0 /\
-  x >= 0 /\
-  (i * i > x -> (i-1) * (i-1) <= x)
+@[qualif] def q1 (i : Int) := i > 0
+@[qualif] def q2 (i x : Int) :=
+  i^2 > x → (i - 1)^2 ≤ x
 
 def FibSqrt_proof : FibSqrt := by
-  unfold FibSqrt
-  exists fib_sqrt_inv; simp
-  zap
-
-
+  solve_fixpoint
 
 end F

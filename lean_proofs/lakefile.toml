@@ -4,3 +4,8 @@ defaultTargets = ["LeanProofs"]
 
 [[lean_lib]]
 name = "LeanProofs"
+
+[[require]]
+name = "LeanFixpoint"
+git = "https://github.com/jam-khan/lean-fixpoint"
+rev = "main"

@@ -3,7 +3,7 @@ import LeanProofs.User.Struct.Arr
 
 namespace F
 
-@[simp]
+@[grind]
 def sort_is_sorted_between (a: Arr Int) (lo hi: Int) : Prop :=
   forall i j, (lo <= i /\ i < j /\ j < hi) -> (a i <= a j)
 

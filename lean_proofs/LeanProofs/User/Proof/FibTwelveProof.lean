@@ -1,10 +1,10 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.FibTwelve
+import LeanFixpoint
 
 namespace F
 
 def FibTwelve_proof : FibTwelve := by
-  unfold FibTwelve
-  simp
+  solve_fusion
 
 end F
