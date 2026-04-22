@@ -180,6 +180,83 @@ pub fn quicksort(arr: &mut AVec<i32>) {
     }
 }
 
+/* -------------------------- MERGE SORT -------------------------- */
+
+#[proven_externally(proof)]
+#[spec(fn (arr: &mut AVec<i32>[@old], aux: &mut AVec<i32>{ v : v.len == old.len }, lo: usize{lo < old.len}, mid: usize{lo <= mid && mid < old.len}, hi: usize{mid < hi && hi < old.len})
+       requires is_sorted_between(old.elems, lo, mid + 1),
+                is_sorted_between(old.elems, mid + 1, (hi + 1)),
+       ensures arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, lo, hi + 1) && is_perm(old.elems, v.elems, lo, hi)},
+               aux : AVec<i32>{v : v.len == old.len && arr_eq_between(old.elems, v.elems, lo, hi + 1)}
+)]
+fn merge(arr: &mut AVec<i32>, aux: &mut AVec<i32>, lo: usize, mid: usize, hi: usize) {
+    let mut k = lo;
+    while k <= hi {
+        aux.set(k, arr[k]);
+        k += 1;
+    }
+
+    let mut i = lo;
+    let mut j = mid + 1;
+    let mut out = lo;
+
+    while out <= hi {
+        if i > mid {
+            arr.set(out, aux[j]);
+            j += 1;
+        } else if j > hi {
+            arr.set(out, aux[i]);
+            i += 1;
+        } else if aux[j] < aux[i] {
+            arr.set(out, aux[j]);
+            j += 1;
+        } else {
+            arr.set(out, aux[i]);
+            i += 1;
+        }
+        out += 1;
+    }
+}
+
+#[proven_externally(proof)]
+#[spec(fn (arr: &mut AVec<i32>[@old], aux: &mut AVec<i32>{ v: v.len == old.len }, lo: usize{lo < old.len}, hi: usize{lo <= hi && hi < old.len})
+       ensures arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, lo, hi + 1) && is_perm(old.elems, v.elems, lo, hi)})]
+fn mergesort_range(arr: &mut AVec<i32>, aux: &mut AVec<i32>, lo: usize, hi: usize) {
+    if hi <= lo {
+        return;
+    }
+
+    let mid = lo + (hi - lo) / 2;
+
+    mergesort_range(arr, aux, lo, mid);
+    mergesort_range(arr, aux, mid + 1, hi);
+
+    if arr[mid] <= arr[mid + 1] {
+        return;
+    }
+
+    merge(arr, aux, lo, mid, hi);
+}
+
+#[proven_externally(proof)]
+#[spec(fn (arr: &mut AVec<i32>[@old])
+       ensures arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, 0, v.len)})]
+pub fn merge_sort(arr: &mut AVec<i32>) {
+    let n = arr.len();
+    if n <= 1 {
+        return;
+    }
+
+    let mut aux = AVec::new();
+    let mut i = 0;
+    while i < n {
+        aux.push(*arr.get(i));
+        i += 1;
+    }
+
+    mergesort_range(arr, &mut aux, 0, n - 1);
+}
+
 /*
 [ 10, 5 ], lo=0, hi=1
 

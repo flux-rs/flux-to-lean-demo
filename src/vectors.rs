@@ -5,6 +5,7 @@ defs! {
     opaque sort Arr<T>;
     fn arr_set<T>(a: Arr<T>, pos: int, v: T) -> Arr<T>;
     fn arr_get<T>(a: Arr<T>, pos: int) -> T;
+    fn arr_eq_between<T>(a1: Arr<T>, a2: Arr<T>, l: int, r: int) -> bool;
     // fn arr_push<T>(a: AVec<T>, v: T) -> AVec<T> {
     //     { elems : arr_set(a.elems, a.len, v),
     //       len : a.len + 1

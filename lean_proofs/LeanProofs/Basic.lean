@@ -18,5 +18,8 @@ import LeanProofs.User.Proof.SortTestSortedProof
 import LeanProofs.User.Proof.SortPartitionProof
 import LeanProofs.User.Proof.SortQuicksortRangeProof
 import LeanProofs.User.Proof.SortQuicksortProof
+import LeanProofs.User.Proof.SortMergeProof
+import LeanProofs.User.Proof.SortMergesortRangeProof
+import LeanProofs.User.Proof.SortMergeSortProof
 import LeanProofs.User.Proof.VectorsTest1Proof
 import LeanProofs.User.Proof.VectorsCanaryProof
