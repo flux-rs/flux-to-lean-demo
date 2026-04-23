@@ -204,16 +204,23 @@ fn merge(arr: &mut AVec<i32>, aux: &mut AVec<i32>, lo: usize, mid: usize, hi: us
         if i > mid {
             arr.set(out, aux[j]);
             j += 1;
-        } else if j > hi {
+            out += 1;
+            continue;
+        }
+        if j > hi {
             arr.set(out, aux[i]);
             i += 1;
-        } else if aux[j] < aux[i] {
+            out += 1;
+            continue;
+        }
+        if aux[j] < aux[i] {
             arr.set(out, aux[j]);
             j += 1;
-        } else {
-            arr.set(out, aux[i]);
-            i += 1;
+            out += 1;
+            continue;
         }
+        arr.set(out, aux[i]);
+        i += 1;
         out += 1;
     }
 }
