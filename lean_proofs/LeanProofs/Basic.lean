@@ -20,3 +20,5 @@ import LeanProofs.User.Proof.SortQuicksortRangeProof
 import LeanProofs.User.Proof.SortQuicksortProof
 import LeanProofs.User.Proof.VectorsTest1Proof
 import LeanProofs.User.Proof.VectorsCanaryProof
+
+#check (F.SortInsert_proof : F.SortInsert)
