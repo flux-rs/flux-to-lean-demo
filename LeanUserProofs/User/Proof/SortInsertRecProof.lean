@@ -21,25 +21,17 @@ def SortInsertRec_proof : SortInsertRec := by
       . by_cases i = k - 1
         . grind
         . have i_lt_k_minus_1 : i < k - 1 := by grind
+          have i_ne_k : i ≠ k := by grind
           simp_all []
-          rw [LeanProofs.Lib.Lemmas.set_get_neq']
-          . rw [LeanProofs.Lib.Lemmas.set_get_neq']
-            . rw [LeanProofs.Lib.Lemmas.set_get_eq']
-              . rename_i hyp _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-                apply hyp <;> grind
-            . grind
-          . grind
+          rename_i hypo _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ -- where did hyp go???
+          apply hypo <;> grind
       . have j_gt_k : j > k := by grind
         by_cases i > k
         . grind
         . by_cases i = k
-          . simp_all [LeanProofs.Lib.Lemmas.set_get_eq']
-            rw [LeanProofs.Lib.Lemmas.set_get_neq']
-            . rw [LeanProofs.Lib.Lemmas.set_get_neq']
-              . rename_i hyp _ _ _ _ _ _ _ _ _ _ _ _ _
-                apply hyp <;> grind
-              . grind
-            . grind
+          . simp_all []
+            rename_i hypo  _ _ _ _ _ _ _ _ _ _ _ _ _ -- where did hyp go???
+            apply hypo <;> grind
           . grind
   . rename_i old n k _ _ _ _ _ _ _ hyp i j _ _ _
     rcases hyp with ha | hb

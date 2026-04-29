@@ -20,7 +20,7 @@ def sortmerge_k0 (k : Int) (a2 : (Arr Int)) (a2len : Int) (old : (Arr Int)) (old
 def sortmerge_k1 : Int → Int → Arr Int → Int → Arr Int → Int → Int → Int → Int → Arr Int → Int → Prop :=
   fun _ _ _ _ _ _ _ _ _ _ _ => True
 
-def sortmerge_k2 (out : Int) (j : Int) (a6 : (Arr Int)) (a6len : Int) (i : Int) (old : (Arr Int)) (oldlen : Int) (lo : Int) (mid : Int) (hi : Int) (_ : (Arr Int)) (_ : Int) (a'₈₂ : Int) (a2 : (Arr Int)) (a2len : Int) : Prop :=
+def sortmerge_k2 (out : Int) (a6 : (Arr Int)) (a6len : Int) (j : Int) (i : Int) (old : (Arr Int)) (oldlen : Int) (lo : Int) (mid : Int) (hi : Int) (_ : (Arr Int)) (_ : Int) (a'₈₂ : Int) (a2 : (Arr Int)) (a2len : Int) : Prop :=
   ((out ≥ 0) ∧ (out ≥ i) ∧ (out ≥ lo) ∧ (out ≤ a'₈₂) ∧ (out ≤ oldlen)) ∧
   a6len = oldlen ∧ a2len = a6len ∧
   sort_is_sorted_between a6 lo out ∧
@@ -32,7 +32,7 @@ def sortmerge_k2 (out : Int) (j : Int) (a6 : (Arr Int)) (a6len : Int) (i : Int) 
   i ≤ hi + 1 ∧ j ≤ hi + 1 ∧
   (out = lo ∨ (out > lo ∧ (i ≤ mid → a6 (out - 1) ≤ a2 i) ∧ (j ≤ hi → a6 (out - 1) ≤ a2 j)))
 
-def sortmerge_k3 : Int → Int → Int → Arr Int → Int → Int → Arr Int → Int → Int → Int → Int → Arr Int → Int → Int → Arr Int → Int → Prop :=
+def sortmerge_k3 : Int → Int → Arr Int → Int → Int → Int → Arr Int → Int → Int → Int → Int → Arr Int → Int → Int → Arr Int → Int → Prop :=
   fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => True
 
 attribute [grind] sortmerge_k0

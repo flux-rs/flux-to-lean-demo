@@ -27,8 +27,8 @@ theorem swap_val_i (a: Arr Int) (i j : Int) :
   by simp [swap]; grind
 
 theorem swap_val_j (a: Arr Int) (i j : Int) :
-  (swap a i j) j = a i := by
-  simp [swap, LeanProofs.Lib.Lemmas.arr_set]
+  (swap a i j) j = a i :=
+  by simp [swap]
 
 @[grind =]
 theorem swap_val_i' (a: Arr Int) (i j : Int) :

@@ -49,6 +49,10 @@ pub fn init_up(vec: &mut AVec<usize>) {
     }
 }
 
+/******************************************************************************/
+/** Insertion Sort with Recursion *********************************************/
+/******************************************************************************/
+
 #[proven_externally(proof)]
 #[spec(fn (arr: &mut AVec<i32>[@old], n: usize{1 <= n && n < old.len}, k: usize{k <= n})
        requires is_sorted_between_exc(old.elems, 0, n + 1, k)
@@ -72,6 +76,10 @@ pub fn insertion_sort_rec(arr: &mut AVec<i32>) {
         n = n + 1
     }
 }
+
+/******************************************************************************/
+/** Insertion Sort with Loop **************************************************/
+/******************************************************************************/
 
 #[spec(fn (arr: &mut AVec<i32>[@old], src: usize{ src < old.len }, dst:usize{dst < old.len})
         ensures arr: AVec<i32>[{len: old.len, elems: swap_elems(old.elems, src, dst)}]
@@ -112,6 +120,10 @@ pub fn test_sorted(arr: &mut AVec<i32>) {
     let a1 = arr[1];
     assert(a0 <= a1);
 }
+
+/******************************************************************************/
+/** QUICK SORT ****************************************************************/
+/******************************************************************************/
 
 #[proven_externally(proof)]
 #[spec(fn (arr: &mut AVec<i32>[@old], lo: usize{lo < old.len}, hi: usize{lo < hi && hi < old.len})
