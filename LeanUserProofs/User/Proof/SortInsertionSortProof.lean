@@ -5,7 +5,7 @@ import LeanProofs.Lib.Tactics
 
 namespace F
 
-def inv_sort  (arr_elems : Arr Int) (arr_len : Int) (n : Int) (_old_elems : Arr Int) (old_len : Int) : Prop :=
+def inv_sort  (n : Int) (arr_elems : Arr Int) (arr_len : Int) (_old_elems : Arr Int) (old_len : Int) : Prop :=
      0 < n
   /\ n <= arr_len
   /\ arr_len = old_len
