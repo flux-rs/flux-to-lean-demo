@@ -1,0 +1,11 @@
+name = "leanproofs"
+defaultTargets = ["LeanProofs"]
+
+[[require]]
+name = "LeanFixpoint"
+git = "https://github.com/jam-khan/lean-fixpoint"
+rev = "main"
+
+[[lean_lib]]
+name = "LeanProofs"
+globs = ["LeanProofs.+"]
