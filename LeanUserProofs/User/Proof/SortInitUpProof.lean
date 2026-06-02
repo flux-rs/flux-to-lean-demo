@@ -9,7 +9,7 @@ namespace F
 def bigger (a: Arr Int) (i: Int) (v: Int) : Prop :=
     (∀ j, 0 <= j /\ j < i → a j < v)
 
-def init_up_inv (this_elems : Arr Int) (this_len : Int) (i : Int) (_old_elems : Arr Int) (old_len : Int) : Prop :=
+def init_up_inv (i : Int) (this_elems : Arr Int) (this_len : Int) (_old_elems : Arr Int) (old_len : Int) : Prop :=
      0 <= i
   /\ i <= old_len
   /\ this_len = old_len

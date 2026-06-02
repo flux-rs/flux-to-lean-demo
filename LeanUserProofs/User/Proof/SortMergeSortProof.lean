@@ -5,11 +5,12 @@ open Classical
 
 namespace F
 
-def mergesort_inv : Int → Arr Int → Int → Arr Int → Int → Arr Int → Int → Prop :=
-  fun idx celems clen oelems olen _ _ =>
-    0 ≤ idx ∧ idx ≤ olen ∧
-    clen = idx ∧
-    vectors_arr_eq_between celems oelems 0 idx
+-- ((k0 (VectorsAVec.elems aux₁) (VectorsAVec.len aux₁) i₀ (VectorsAVec.elems old₀) (VectorsAVec.len old₀) (VectorsAVec.elems aux₀) (VectorsAVec.len aux₀))) ->
+
+def mergesort_inv (celems : Arr Int) (clen : Int) (idx : Int) (oelems : Arr Int) (olen : Int) (_ : Arr Int) (_ : Int) : Prop :=
+  0 ≤ idx ∧ idx ≤ olen ∧
+  clen = idx ∧
+  vectors_arr_eq_between celems oelems 0 idx
 
 open SortMergeSortKVarSolutions
 
@@ -21,7 +22,7 @@ def SortMergeSort_proof : SortMergeSort := by
   · split_hyp_ands
     unfold vectors_arr_eq_between at *
     intros i ib
-    rename_i i0 aux1 _ _ _ _ _ _ neeq _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    rename_i aux1 i0 _ _ _ _ _ _ neeq _ _ _ _ _ _ _ _ _ _ _ _ _ _
     rw [neeq]
     by_cases i = i0
     · subst i ; simp ; grind

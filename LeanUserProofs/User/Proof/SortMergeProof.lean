@@ -2,6 +2,7 @@ import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortMerge
 import LeanProofs.Lib.Lemmas
 open Classical
+set_option linter.unusedVariables false
 
 namespace F
 
@@ -20,7 +21,10 @@ def sortmerge_k0 (k : Int) (a2 : (Arr Int)) (a2len : Int) (old : (Arr Int)) (old
 def sortmerge_k1 : Int → Int → Arr Int → Int → Arr Int → Int → Int → Int → Int → Arr Int → Int → Prop :=
   fun _ _ _ _ _ _ _ _ _ _ _ => True
 
-def sortmerge_k2 (out : Int) (a6 : (Arr Int)) (a6len : Int) (j : Int) (i : Int) (old : (Arr Int)) (oldlen : Int) (lo : Int) (mid : Int) (hi : Int) (_ : (Arr Int)) (_ : Int) (a'₈₂ : Int) (a2 : (Arr Int)) (a2len : Int) : Prop :=
+
+
+-- ((k2 i₀ j₀ out₀ (VectorsAVec.elems a'₈) (VectorsAVec.len a'₈) (VectorsAVec.elems old₀) (VectorsAVec.len old₀) lo₀ mid₀ hi₀ (VectorsAVec.elems v₀) (VectorsAVec.len v₀) k₀ (VectorsAVec.elems a'₃) (VectorsAVec.len a'₃))) ->
+def sortmerge_k2 (i : Int) (j : Int) (out : Int) (a6 : (Arr Int)) (a6len : Int)  (old : (Arr Int)) (oldlen : Int) (lo : Int) (mid : Int) (hi : Int) (_ : (Arr Int)) (_ : Int) (a'₈₂ : Int) (a2 : (Arr Int)) (a2len : Int) : Prop :=
   ((out ≥ 0) ∧ (out ≥ i) ∧ (out ≥ lo) ∧ (out ≤ a'₈₂) ∧ (out ≤ oldlen)) ∧
   a6len = oldlen ∧ a2len = a6len ∧
   sort_is_sorted_between a6 lo out ∧
@@ -32,8 +36,8 @@ def sortmerge_k2 (out : Int) (a6 : (Arr Int)) (a6len : Int) (j : Int) (i : Int) 
   i ≤ hi + 1 ∧ j ≤ hi + 1 ∧
   (out = lo ∨ (out > lo ∧ (i ≤ mid → a6 (out - 1) ≤ a2 i) ∧ (j ≤ hi → a6 (out - 1) ≤ a2 j)))
 
-def sortmerge_k3 : Int → Int → Arr Int → Int → Int → Int → Arr Int → Int → Int → Int → Int → Arr Int → Int → Int → Arr Int → Int → Prop :=
-  fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => True
+def sortmerge_k3 (a'₂₆ : Int) (a'₂₇ : Int) (a'₂₈ : Int) (a'₂₉ : Int) (a'₃₀ : (Arr Int)) (a'₃₁ : Int) (a'₃₂ : (Arr Int)) (a'₃₃ : Int) (a'₃₄ : Int) (a'₃₅ : Int) (a'₃₆ : Int) (a'₃₇ : (Arr Int)) (a'₃₈ : Int) (a'₃₉ : Int) (a'₄₀ : (Arr Int)) (a'₄₁ : Int) : Prop :=
+  True
 
 attribute [grind] sortmerge_k0
 attribute [grind] sortmerge_k1
@@ -229,7 +233,7 @@ def SortMerge_proof : SortMerge := by
     · grind only [sortmerge_k2]
     · intros
       unfold sortmerge_k0 sortmerge_k2 at *
-      rename_i i _ _ _ _ _ _ _ _ _ _
+      rename_i i _ _ _ _ _ _ _ _ _ _ _ _ _
       have : lo ≤ i := by omega
       simp_all [vectors_arr_eq_between]
       split_hyp_ands
@@ -274,8 +278,8 @@ def SortMerge_proof : SortMerge := by
       unfold sortmerge_k0 sortmerge_k2 k8 at *
       split_hyps <;> simp_all [vectors_arr_eq_between]
       any_goals grind
-      rename_i h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-      rw [h, h]
+      rename_i h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+      rw [h]
       any_goals grind
       apply_assumption
       all_goals grind
@@ -283,21 +287,21 @@ def SortMerge_proof : SortMerge := by
       unfold sortmerge_k0 sortmerge_k2 k8 at *
       split_hyps <;> simp_all [vectors_arr_eq_between]
       any_goals grind
-      rename_i h1 _ _ _ _ h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+      rename_i h1 _ _ _ _ h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
       rw [h, h]
       any_goals grind
       apply h1
       assumption
       omega
       grind only
-      rename_i h1 _ _ _ h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+      rename_i h1 _ _ _ _ h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
       rw [h, h]
       any_goals grind
       apply h1
       assumption
       omega
       grind only
-      rename_i h1 _ _ _ h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+      rename_i h1 _ _ _ _ h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
       rw [h, h]
       any_goals grind
       apply h1
