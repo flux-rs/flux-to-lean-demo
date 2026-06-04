@@ -1,6 +1,8 @@
 pub mod fib;
+pub mod memo;
+pub mod merge_sort;
+pub mod ringbuffer;
 pub mod sort;
 pub mod vectors;
-pub mod merge_sort;
 
 fn main() {}
