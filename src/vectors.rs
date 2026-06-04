@@ -66,6 +66,20 @@ impl<T> AVec<T> {
     }
 }
 
+impl<T: Copy> AVec<T> {
+    #[proven_externally(proof)]
+    #[spec(fn (arr: &AVec<T>[@orig]) -> AVec<T>{v: v.len == orig.len && arr_eq_between(orig.elems, v.elems, 0, v.len)})]
+    pub fn copy(arr: &AVec<T>) -> AVec<T> {
+        let mut aux = AVec::new();
+        let mut i = 0;
+        while i < arr.len() {
+            aux.push(*arr.get(i));
+            i += 1;
+        }
+        aux
+    }
+}
+
 impl<T> std::ops::Index<usize> for AVec<T> {
     type Output = T;
 
