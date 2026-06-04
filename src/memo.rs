@@ -51,7 +51,7 @@ macro_rules! memo {
 #[proven_externally(proof)]
 #[spec(fn(n: usize, m: &mut Memo<usize>[|k, v| v == spec_fib(k)]) -> usize[spec_fib(n)])]
 pub fn fib_memo(n: usize, m: &mut Memo<usize>) -> usize {
-    let v = if n <= 1 {
+    let res = if n <= 1 {
         1
     } else if let Some(v) = m.get(n) {
         *v
@@ -60,8 +60,9 @@ pub fn fib_memo(n: usize, m: &mut Memo<usize>) -> usize {
         m.set(n, v);
         v
     };
-    v
+    res
 }
+
 pub fn test_memo() {
     let mut m = memo! {usize, |k, v| k < v};
     m.set(1, 2);

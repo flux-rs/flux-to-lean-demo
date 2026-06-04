@@ -33,6 +33,35 @@ private partial def zapCore : TacticM Unit := do
     (falling back to `rfl`) at leaf goals. -/
 elab "zap" : tactic => zapCore
 
+open Lean Elab Tactic Meta in
+private partial def zapNamedCore : TacticM Unit := do
+  let goals ← getGoals
+  match goals with
+  | [] => return ()
+  | g :: restGoals =>
+    let ty ← whnfR (← g.getType)
+    if ty.isForall then
+      let name := mkIdent ty.bindingName!
+      evalTactic (← `(tactic| intro $name:ident))
+      zapNamedCore
+    else if ty.isAppOfArity ``And 2 then
+      evalTactic (← `(tactic| and_intros))
+      zapNamedCore
+    else
+      let leafOk ← try evalTactic (← `(tactic| grind)); pure true catch _ =>
+                   try evalTactic (← `(tactic| rfl));   pure true catch _ => pure false
+      if leafOk then
+        zapNamedCore
+      else
+        setGoals restGoals
+        zapNamedCore
+        let remaining ← getGoals
+        setGoals (g :: remaining)
+
+/-- Like `zap`, but introduces forall-bound variables using their binder names
+    instead of `_`. -/
+elab "zapNamed" : tactic => zapNamedCore
+
 
 -- Build `fun x₁ x₂ … xₙ => True` for a type of the form `t₁ → t₂ → … → tₙ → Prop`.
 open Lean Elab Tactic Meta in
