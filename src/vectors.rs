@@ -68,14 +68,22 @@ impl<T> AVec<T> {
 
 impl<T: Copy> AVec<T> {
     #[proven_externally(proof)]
-    #[spec(fn (arr: &AVec<T>[@orig]) -> AVec<T>{v: v.len == orig.len && arr_eq_between(orig.elems, v.elems, 0, v.len)})]
-    pub fn copy(arr: &AVec<T>) -> AVec<T> {
-        let mut aux = AVec::new();
-        let mut i = 0;
-        while i < arr.len() {
-            aux.push(*arr.get(i));
-            i += 1;
+    #[spec(fn (&AVec<T>[@src], dst: &mut AVec<T>[@out], i: usize{i <= src.len && i == out.len})
+        requires arr_eq_between(src.elems, out.elems, 0, i)
+        ensures dst: AVec<T>{v: v.len == src.len && arr_eq_between(src.elems, v.elems, 0, src.len)}
+    )]
+    fn copy_loop(&self, dst: &mut AVec<T>, i: usize) {
+        if i < self.len() {
+            dst.push(*self.get(i));
+            self.copy_loop(dst, i + 1)
         }
+    }
+
+    #[proven_externally(proof)]
+    #[spec(fn (arr: &AVec<T>[@orig]) -> AVec<T>{v: v.len == orig.len && arr_eq_between(orig.elems, v.elems, 0, v.len)})]
+    pub fn copy(&self) -> AVec<T> {
+        let mut aux = AVec::new();
+        self.copy_loop(&mut aux, 0);
         aux
     }
 }

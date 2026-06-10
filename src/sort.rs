@@ -7,6 +7,9 @@ defs! {
     fn is_sorted_between_exc(v: Arr<int>, lo: int, hi: int, exc: int) -> bool;
     fn is_partitioned_by(v: Arr<int>, lo: int, mid: int, hi: int, pivot: int) -> bool;
     fn is_perm(left: Arr<int>, right: Arr<int>, lo: int, hi: int) -> bool;
+    fn is_subset(lhs: Arr<int>, llo: int, lhi: int, rhs: Arr<int>, rlo: int, rhi: int) -> bool;
+    fn all_smaller(lhs: Arr<int>, llo: int, lhi: int, rhs: Arr<int>, rlo: int, rhi: int) -> bool;
+
     fn is_sorted(v: AVec<int>) -> bool {
         is_sorted_between(v.elems, 0, v.len)
     }
@@ -33,8 +36,8 @@ pub fn test1() {
 pub fn test2() -> AVec<i32> {
     let mut v = AVec::new();
     v.push(1);
-    v.push(2);
-    v.push(3);
+    v.push(20);
+    v.push(300);
     v
 }
 
@@ -194,48 +197,114 @@ pub fn quicksort(arr: &mut AVec<i32>) {
 
 /* -------------------------- MERGE SORT -------------------------- */
 
-// #[proven_externally(proof)]
-#[trusted]
-#[spec(fn (arr: &mut AVec<i32>[@old], aux: &mut AVec<i32>{ v : v.len == old.len }, lo: usize{lo < old.len}, mid: usize{lo <= mid && mid < old.len}, hi: usize{mid < hi && hi < old.len})
-       requires is_sorted_between(old.elems, lo, mid + 1),
-                is_sorted_between(old.elems, mid + 1, (hi + 1)),
-       ensures arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, lo, hi + 1) && is_perm(old.elems, v.elems, lo, hi)},
-               aux : AVec<i32>{v : v.len == old.len && arr_eq_between(old.elems, v.elems, lo, hi + 1)}
+#[proven_externally(proof)]
+#[spec(fn (arr: &AVec<i32>[@old], aux: &mut AVec<i32>{v: v.len == old.len && arr_eq_between(old.elems, v.elems, lo, i)}, lo: usize{lo < old.len},  i:usize{lo <= i }, hi: usize{lo <= hi && hi < old.len})
+       ensures aux : AVec<i32>{aux_copied : aux_copied.len == old.len && arr_eq_between(old.elems, aux_copied.elems, lo, hi + 1)}
 )]
-fn merge_new(arr: &mut AVec<i32>, aux: &mut AVec<i32>, lo: usize, mid: usize, hi: usize) {
-    let mut k = lo;
-    while k <= hi {
-        aux.set(k, arr[k]);
-        k += 1;
+pub fn copy_into(arr: &AVec<i32>, aux: &mut AVec<i32>, lo: usize, i: usize, hi: usize) {
+    if i <= hi {
+        aux.set(i, arr[i]);
+        copy_into(arr, aux, lo, i + 1, hi);
+    }
+}
+
+#[spec(fn(arr: &mut AVec<i32>[@me], pos: usize{pos < me.len}, v: i32)
+        ensures arr: AVec<i32>[{elems: arr_set(me.elems, pos, v), len: me.len}]
+    )]
+pub fn set_i32(arr: &mut AVec<i32>, pos: usize, v: i32) {
+    arr.set(pos, v)
+}
+
+#[spec(fn(arr: &AVec<i32>[@me], pos: usize{pos < me.len}) -> i32[arr_get(me.elems, pos)])]
+pub fn get_i32(arr: &AVec<i32>, pos: usize) -> i32 {
+    *arr.get(pos)
+}
+
+#[proven_externally(proof)]
+#[spec(fn (arr: &mut AVec<i32>[@buf], &AVec<i32>[@aux],
+           lo: usize{lo < aux.len}, mid: usize{lo <= mid && mid < aux.len}, hi: usize{mid < hi && hi < aux.len},
+           i: usize{lo <= i && i <= mid + 1}, j: usize{mid + 1 <= j && j <= hi + 1}, out: usize,
+          )
+       requires
+         buf.len == aux.len,
+         out == i + j - mid - 1,
+         is_sorted_between(aux.elems, lo, mid + 1),
+         is_sorted_between(aux.elems, mid + 1, hi + 1),
+         is_sorted_between(buf.elems, lo, out),
+         all_smaller(buf.elems, lo, out, aux.elems, i, mid + 1),
+         all_smaller(buf.elems, lo, out, aux.elems, j, hi + 1),
+         is_subset(aux.elems, lo, i, buf.elems, lo, out),
+         is_subset(aux.elems, mid + 1,  j, buf.elems, lo, out),
+       ensures
+         arr: AVec<i32>{v: v.len == buf.len && is_sorted_between(v.elems, lo, hi + 1) && is_subset(aux.elems, lo, hi + 1, buf.elems, lo, hi + 1)},
+)]
+fn msort_merge(
+    arr: &mut AVec<i32>,
+    aux: &AVec<i32>,
+    lo: usize,
+    mid: usize,
+    hi: usize,
+    i: usize,
+    j: usize,
+    out: usize,
+) {
+    if out > hi {
+        return;
+    } else if i > mid {
+        set_i32(arr, out, get_i32(aux, j));
+        msort_merge(arr, aux, lo, mid, hi, i, j + 1, out + 1);
+        return;
+    } else if j > hi {
+        set_i32(arr, out, get_i32(aux, i));
+        msort_merge(arr, aux, lo, mid, hi, i + 1, j, out + 1);
+        return;
+    } else if get_i32(aux, j) < get_i32(aux, i) {
+        set_i32(arr, out, get_i32(aux, j));
+        msort_merge(arr, aux, lo, mid, hi, i, j + 1, out + 1);
+        return;
+    } else {
+        set_i32(arr, out, get_i32(aux, i));
+        msort_merge(arr, aux, lo, mid, hi, i + 1, j, out + 1);
+        return;
+    }
+}
+
+#[proven_externally(proof)]
+#[spec(fn (arr: &mut AVec<i32>[@old], aux: &mut AVec<i32>{ v: v.len == old.len }, lo: usize{lo < old.len}, hi: usize{lo <= hi && hi < old.len})
+       ensures
+         arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, lo, hi + 1) && is_perm(old.elems, v.elems, lo, hi)},
+         aux: AVec<i32>
+        )]
+fn msort_range(arr: &mut AVec<i32>, aux: &mut AVec<i32>, lo: usize, hi: usize) {
+    if hi <= lo {
+        return;
     }
 
-    let mut i = lo;
-    let mut j = mid + 1;
-    let mut out = lo;
+    let mid = lo + (hi - lo) / 2;
 
-    while out <= hi {
-        if i > mid {
-            arr.set(out, aux[j]);
-            j += 1;
-            out += 1;
-            continue;
-        }
-        if j > hi {
-            arr.set(out, aux[i]);
-            i += 1;
-            out += 1;
-            continue;
-        }
-        if aux[j] < aux[i] {
-            arr.set(out, aux[j]);
-            j += 1;
-            out += 1;
-            continue;
-        }
-        arr.set(out, aux[i]);
-        i += 1;
-        out += 1;
+    msort_range(arr, aux, lo, mid);
+    msort_range(arr, aux, mid + 1, hi);
+    copy_into(arr, aux, lo, lo, hi);
+
+    if get_i32(arr, mid) <= get_i32(arr, mid + 1) {
+        return;
+    } else {
+        return msort_merge(arr, aux, lo, mid, hi, lo, mid + 1, lo);
     }
+}
+
+#[proven_externally(proof)]
+#[spec(fn (arr: &mut AVec<i32>[@old])
+       ensures arr: AVec<i32>{v: v.len == old.len && is_sorted_between(v.elems, 0, v.len)})]
+pub fn msort(arr: &mut AVec<i32>) {
+    let n = arr.len();
+    if n <= 1 {
+        return;
+    }
+
+    let mut aux = arr.copy();
+
+    msort_range(arr, &mut aux, 0, n - 1);
 }
 
 #[proven_externally(proof)]
@@ -354,5 +423,14 @@ mod test {
         let mut vec = crate::vectors::AVec::from_vec(vec![5, 12, 7, 1, 20, 6]);
         crate::sort::quicksort(&mut vec);
         assert!(vec.to_vec() == vec![1, 5, 6, 7, 12, 20]);
+    }
+
+    #[test]
+    fn test_msort() {
+        let mut vec = crate::vectors::AVec::from_vec(vec![5, 12, 7, 1, 20, 6]);
+        crate::sort::msort(&mut vec);
+        let res = vec.to_vec();
+        println!("Sorted vec: {res:?}");
+        assert!(res == vec![1, 5, 6, 7, 12, 20]);
     }
 }
