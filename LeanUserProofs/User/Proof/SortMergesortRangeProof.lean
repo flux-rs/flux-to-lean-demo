@@ -1,5 +1,7 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortMergesortRange
+import LeanFixpoint
+
 open Classical
 
 namespace F
@@ -51,7 +53,7 @@ set_option maxHeartbeats 1000000
 
 def SortMergesortRange_proof : SortMergesortRange := by
   unfold SortMergesortRange
-  exists k0 ; exists k1
-  unfold k0 k1
+  fusion
   zap
+
 end F
