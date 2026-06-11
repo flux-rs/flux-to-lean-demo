@@ -68,7 +68,7 @@ end F
 
 namespace F
 
-theorem SortQuicksortRange_proof' : SortQuicksortRange := by
+theorem SortQuicksortRange_proof : SortQuicksortRange := by
   unfold SortQuicksortRange
   fusion
   intro old₀ lo₀ hi₀ hlolen hhilen hlen hlo hhi
@@ -99,16 +99,16 @@ theorem SortQuicksortRange_proof' : SortQuicksortRange := by
       have ha3bigger : sort_is_bigger a'₃.elems lo₀ p₀ p₀ := bigger_perm hpart.1 ha3perm
       have ha3smaller : sort_is_smaller a'₃.elems p₀ (hi₀ + 1) p₀ := is_smaller_perm' hpart.2 ha3perm
       refine ⟨?_, ?_⟩
-      · intro hph; exact ⟨by omega, by omega⟩
-      · intro a'₅ hbr5
-        have ha5len : a'₅.len = old₀.len := by
-          rcases hbr5 with ⟨_, h⟩ | ⟨_, vv, h⟩ <;> grind
-        have ha5sorted_hi : sort_is_sorted_between a'₅.elems (p₀ + 1) (hi₀ + 1) := by
-          rcases hbr5 with ⟨hn, h⟩ | ⟨_, vv, h⟩ <;> simp_all [sort_is_sorted_between]; grind
-        have ha5perm : sort_is_perm a'₃.elems a'₅.elems (p₀ + 1) hi₀ := by
-          rcases hbr5 with ⟨_, h⟩ | ⟨_, vv, ⟨_, _, hpm⟩, _, h⟩ <;>
-            (try simp only [sort_is_perm, is_perm, is_frame] at hpm) <;>
-            simp only [sort_is_perm, is_perm, is_frame] <;> grind
+      · intro hnph; refine ⟨ha3len, ?_, ?_⟩
+        · simp_all [sort_is_sorted_between]; grind
+        · exact sort_is_perm_trans hperm₀ (perm_widen_lo ha3perm hphi)
+      · intro hph
+        refine ⟨by omega, by omega, ?_⟩
+        intro a'₅ hbr5 _hv2len
+        obtain ⟨ha5_a3len, ha5sorted_hi_raw, ha5perm_raw⟩ := hbr5
+        have ha5len : a'₅.len = old₀.len := by grind
+        have ha5sorted_hi : sort_is_sorted_between a'₅.elems (p₀ + 1) (hi₀ + 1) := ha5sorted_hi_raw
+        have ha5perm : sort_is_perm a'₃.elems a'₅.elems (p₀ + 1) hi₀ := ha5perm_raw
         -- a'₅ agrees with a'₃ on the lower half (frame of the upper-half sort)
         have hframe5 : ∀ i, i < p₀ + 1 → a'₅.elems i = a'₃.elems i := by
           have h := ha5perm; simp only [sort_is_perm, is_frame] at h; exact h.2.1
