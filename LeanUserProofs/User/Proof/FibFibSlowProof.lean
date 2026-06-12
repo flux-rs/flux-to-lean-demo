@@ -6,6 +6,6 @@ namespace F
 
 def FibFibSlow_proof : FibFibSlow := by
   unfold FibFibSlow
-  zap
+  zapNamed
 
 end F

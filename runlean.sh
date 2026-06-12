@@ -6,6 +6,7 @@ if [ -f LeanUserProofs/lakefile.toml ]; then
   cp LeanUserProofs/lakefile.toml lean_proofs/lakefile.toml
 fi
 cd lean_proofs
+lake update
 lake build
 cd ..
 cargo flux
