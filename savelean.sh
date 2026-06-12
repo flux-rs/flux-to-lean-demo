@@ -34,6 +34,11 @@ for d in User Lib; do
   fi
 done
 
+if [[ -f "$SRC/../lakefile.toml" ]]; then
+  echo "saving lakefile.toml  ->  LeanUserProofs/"
+  cp "$SRC/../lakefile.toml" "$DST/lakefile.toml"
+fi
+
 echo
 echo "Saved working proofs into LeanUserProofs/. Review & commit the source-of-truth:"
 echo "  git status LeanUserProofs/"
