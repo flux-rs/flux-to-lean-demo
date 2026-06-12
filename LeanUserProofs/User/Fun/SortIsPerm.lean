@@ -2,7 +2,7 @@ import LeanProofs.Flux.Prelude
 import LeanProofs.User.Struct.Arr
 import LeanProofs.User.Struct.Arr
 import LeanProofs.Lib.Lemmas
-import LeanProofs.Lib.Tactics
+-- import LeanProofs.Lib.Tactics
 open Classical
 namespace F
 

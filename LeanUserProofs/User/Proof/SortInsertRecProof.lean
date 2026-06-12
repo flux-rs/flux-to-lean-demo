@@ -1,53 +1,36 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortInsertRec
-import LeanProofs.Lib.Tactics
+import LeanFixpoint
 import LeanProofs.Lib.Lemmas
 
 namespace F
 
 def SortInsertRec_proof : SortInsertRec := by
   unfold SortInsertRec
-  exists SortInsertRecKVarSolutions.k0
-  exists SortInsertRecKVarSolutions.k1
-  exists SortInsertRecKVarSolutions.k2
-  exists SortInsertRecKVarSolutions.k3
-  exists SortInsertRecKVarSolutions.k4
-  simp [LeanProofs.Lib.Lemmas.arr_get, SortInsertRecKVarSolutions.k0, SortInsertRecKVarSolutions.k1, SortInsertRecKVarSolutions.k2, SortInsertRecKVarSolutions.k3, SortInsertRecKVarSolutions.k4]
-  zap
-  . rename_i old n k hyp _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ i j _ _ _ _
-    by_cases j < k - 1
-    . grind
-    . by_cases j = k
-      . by_cases i = k - 1
-        . grind
-        . have i_lt_k_minus_1 : i < k - 1 := by grind
-          have i_ne_k : i ≠ k := by grind
-          simp_all []
-          rename_i hypo _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ -- where did hyp go???
-          apply hypo <;> grind
-      . have j_gt_k : j > k := by grind
-        by_cases i > k
-        . grind
-        . by_cases i = k
-          . simp_all []
-            rename_i hypo  _ _ _ _ _ _ _ _ _ _ _ _ _ -- where did hyp go???
-            apply hypo <;> grind
-          . grind
-  . rename_i old n k _ _ _ _ _ _ _ hyp i j _ _ _
-    rcases hyp with ha | hb
-    . by_cases j = k
-      . simp_all
-        by_cases i = k - 1
-        . grind
-        . have i_lt_mid_minus_1 : i < k - 1 := by grind
-          have hh : old.elems i <= old.elems (k - 1) := by
-            split_ands_all
-            obtain ⟨hA, hB⟩ := ha
-            apply hA <;> grind
-          grind
-      . grind
-    . obtain ⟨hb1, hb2⟩ := hb
-      have k_0 : k = 0 := by grind
-      grind
+  fusion
+  simp [LeanProofs.Lib.Lemmas.arr_get]
+  intro old n k hsx h1n hnlen hkn hlen hn hk
+  refine ⟨?_, ?_⟩
+  · intro hk0
+    refine ⟨by omega, by omega, by omega, ?_⟩
+    intro hlt
+    refine ⟨by omega, by omega, by omega, by omega, by omega, by omega, by omega, ?_, by omega⟩
+    intro i j hi hij hjn hjk1
+    by_cases hjk : j = k
+    · by_cases hik1 : i = k - 1
+      · grind                                                            -- old k ≤ old (k-1) via hlt
+      · have key := hsx i (k - 1) (by omega) (by omega) (by omega) (by omega); grind
+    · by_cases hik : i = k
+      · have key := hsx (k - 1) j (by omega) (by omega) (by omega) (by omega); grind
+      · by_cases hik1 : i = k - 1
+        · have key := hsx k j (by omega) (by omega) (by omega) (by omega); grind
+        · have key := hsx i j (by omega) (by omega) (by omega) (by omega); grind
+  · rintro (hk0 | ⟨hk0, hord⟩) i j hi hij hjn
+    · exact hsx i j (by omega) hij (by omega) (by omega)
+    · by_cases hjk : j = k
+      · by_cases hik1 : i = k - 1
+        · grind                                                          -- old (k-1) ≤ old k via hord
+        · have key := hsx i (k - 1) (by omega) (by omega) (by omega) (by omega); grind
+      · exact hsx i j (by omega) hij (by omega) (by omega)
 
 end F

@@ -1,6 +1,7 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortInitUp
-import LeanProofs.Lib.Tactics
+-- import LeanProofs.Lib.Tactics
+import LeanFixpoint
 import LeanProofs.Lib.Lemmas
 
 namespace F

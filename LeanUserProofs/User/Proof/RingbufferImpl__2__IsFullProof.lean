@@ -1,15 +1,14 @@
 import LeanProofs.Flux.Prelude
-import LeanProofs.Flux.VC.MemoFibMemo
--- import LeanProofs.Lib.Tactics
+import LeanProofs.Flux.VC.RingbufferImpl__2__IsFull
 import LeanFixpoint
+
 open Classical
 set_option linter.unusedVariables false
 
 
 namespace F
 
-def MemoFibMemo_proof : MemoFibMemo := by
-  unfold MemoFibMemo
+def RingbufferImpl__2__IsFull_proof : RingbufferImpl__2__IsFull := by
   solve_fixpoint
 
 end F

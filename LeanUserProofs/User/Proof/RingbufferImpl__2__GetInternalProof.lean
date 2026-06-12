@@ -1,6 +1,7 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.RingbufferImpl__2__GetInternal
-import LeanProofs.Lib.Tactics
+import LeanFixpoint
+-- import LeanProofs.Lib.Tactics
 open Classical
 set_option linter.unusedVariables false
 

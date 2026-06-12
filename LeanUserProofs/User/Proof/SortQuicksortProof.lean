@@ -1,6 +1,6 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortQuicksort
-import LeanProofs.Lib.Tactics
+import LeanFixpoint
 import LeanProofs.Lib.Lemmas
 
 open Classical
@@ -8,6 +8,6 @@ open Classical
 namespace F
 
 def SortQuicksort_proof : SortQuicksort := by
-  unfold SortQuicksort; simp; zap
+  solve_fixpoint
 
 end F

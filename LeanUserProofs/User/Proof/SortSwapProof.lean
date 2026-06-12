@@ -1,15 +1,16 @@
 import LeanProofs.Flux.Prelude
-import LeanProofs.Flux.VC.MemoFibMemo
--- import LeanProofs.Lib.Tactics
+import LeanProofs.Flux.VC.SortSwap
 import LeanFixpoint
 open Classical
+
 set_option linter.unusedVariables false
 
 
 namespace F
 
-def MemoFibMemo_proof : MemoFibMemo := by
-  unfold MemoFibMemo
+def SortSwap_proof : SortSwap := by
+  unfold SortSwap
+  fusion
   solve_fixpoint
 
 end F

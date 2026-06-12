@@ -15,6 +15,6 @@ def isort_inv (n : Int) (arr_elems : Arr Int) (arr_len : Int) (_old_elems : Arr 
 def SortInsertionSortRec_proof : SortInsertionSortRec := by
   unfold SortInsertionSortRec
   exists isort_inv; simp [isort_inv]
-  zap
+  zapNamed
 
 end F

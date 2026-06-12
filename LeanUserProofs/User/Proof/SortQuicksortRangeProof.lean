@@ -1,7 +1,8 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortQuicksortRange
 import LeanProofs.Lib.Lemmas
-import LeanProofs.Lib.Tactics
+import LeanFixpoint
+
 -- import Aesop
 open Classical
 
@@ -53,142 +54,73 @@ theorem is_sorted_using_pivot :
   := by
   simp_all [sort_is_smaller, sort_is_bigger, sort_is_sorted_between]; grind
 
+theorem perm_widen_lo :
+  sort_is_perm v a lo (p - 1) -> p ≤ hi -> sort_is_perm v a lo hi
+  := by
+  intro h hp; simp_all [sort_is_perm, is_perm, is_frame]; grind
+
+theorem perm_widen_hi :
+  sort_is_perm a b (p + 1) hi -> lo ≤ p -> sort_is_perm a b lo hi
+  := by
+  intro h hp; simp_all [sort_is_perm, is_perm, is_frame]; grind
+
 end F
 
 namespace F
 
-def qs_k1 (p : Int) (_hi : Int) (a1 a0 : VectorsAVec Int) (lo : Int) (old : VectorsAVec Int) (_a2_elems : Arr Int) (a2_len : Int) (_ : Arr Int) (_ : Int) (_ _ _ : Int) (_ : Arr Int) (_ : Int) (_ : Arr Int) (_ : Int) : Prop :=
-  a0.len = old.len /\ a1.len = old.len /\ a2_len = old.len /\
-  sort_is_sorted_between a1.elems lo p /\
-  is_perm a0.elems a1.elems lo p /\
-  a1.elems p = a0.elems p /\
-  sort_is_smaller a1.elems lo p (a1.elems p)
-
-open SortQuicksortRangeKVarSolutions in
-
-def SortQuicksortRange_proof : SortQuicksortRange := by
+theorem SortQuicksortRange_proof : SortQuicksortRange := by
   unfold SortQuicksortRange
-  exists k0; exists k1;
-  zap
-  . simp [sort_is_sorted_between]; grind
-  . simp [is_perm]; grind
-  . simp_all [k0]
-  . grind [k0]
-  . -- k1
-    rename_i old lo hi _ _ _ _ _ _ p a0 _ _ _ a1 hyp0 _
-    rw [k1]
-    right
-    repeat constructor
-    . simp_all [sort_is_partitioned_by]
-    . simp_all [sort_is_partitioned_by]
-    . repeat constructor
-      . simp_all [sort_is_perm]
-      . simp_all [sort_is_perm]
-      . constructor
-        . constructor
-          constructor
-          . exists a1
-            . have p_eq : (p - 1) + 1 = p := by grind
-              rw [p_eq]
-              rw [k0] at hyp0
-              split_hyp_ors <;> grind
-          . omega
-        . grind
-
-  . grind [k0]
-  . grind [k0]
-  . -- k1
-    rename_i old lo hi _ _ _ _ _ _ p a0 _ _ _ a1 hyp0 _ a1 _ _
-    rw [k1]
-    left
-    constructor
-    . exists a1
-      grind
-    . constructor
-      . grind
-      . constructor
-        . grind
-        . constructor
-          . rw [k0] at hyp0
-            split_hyp_ors
-            . constructor
-              constructor
-              . rename_i hh; obtain ⟨_ , _⟩ := hh; grind
-              . omega
-            . grind
-          . grind
-
-
-  . simp_all [k1]; grind
-  . -- sorted_between
-    rename_i old lo hi _ _ _ _ _ _ p a0 hyp0 _ _ a1 hyp1 a2 hyp2
-    have h_lo_p : sort_is_sorted_between a2.elems lo p := by
-      have h0 : sort_is_sorted_between a1.elems lo p := by
-        rw [k0] at hyp1; split_hyp_ors
-        . rename_i hh; obtain ⟨_ , _⟩ := hh; grind
-        . grind [sort_is_sorted_between]
-      simp_all [k1, sort_is_perm, is_frame, is_perm]; grind
-
-    have h_p_bigger : sort_is_bigger a2.elems lo p p := by
-      have h3 : sort_is_bigger a0.elems lo p p       := by
-        simp_all [k0]
-      have h4 : sort_is_bigger a1.elems lo p p       := by
-        simp_all [k0, sort_is_perm, is_frame, is_perm]; grind
-      simp_all [k1, sort_is_perm, is_frame, is_perm]; grind
-
-    have h_p_hi : sort_is_sorted_between a2.elems (p + 1) (hi + 1) := by
-      simp_all [k1]; grind
-
-    have h8 : a1.elems p = a0.elems p := by
-      rw [k0] at hyp1; split_hyp_ors
-      . rename_i hh
-        obtain ⟨ ⟨ arr1' , hh' ⟩ , _⟩ := hh
-        grind [sort_is_perm, is_perm, is_frame]
-      . grind
-    have h9 : sort_is_perm a0.elems a1.elems lo (p - 1) := by
-      rw [k0] at hyp1; split_hyp_ors
-      . rename_i hh
-        obtain ⟨ ⟨ a1' , ⟨ _, hh', _ ⟩ ⟩ , _⟩ := hh
-        have eq_els : a1.elems = a1'.elems := by grind
-        rw [eq_els]
-        assumption
-      . have eq_els : a1.elems = a0.elems := by grind
-        rw [eq_els]
-        apply sort_is_perm_id
-
-    have h7 : sort_is_smaller a0.elems p (hi + 1) p := by
-      rw [sort_is_partitioned_by] at hyp0; grind
-    have h10 : sort_is_smaller a1.elems p (hi + 1) p := by
-      rw [k0] at hyp1; split_hyp_ors
-      . rename_i hh
-        obtain ⟨ ⟨ a1' , hh' ⟩ , _⟩ := hh
-        have eq_els : a1.elems = a1'.elems := by grind
-        rw [eq_els]
-        obtain ⟨ _ , ⟨ hh2, _ ⟩⟩ := hh'
-        apply is_smaller_perm'
-        apply h7
-        apply hh2
-      . grind
-    have h11 : sort_is_smaller a2.elems p (hi + 1) p := by
-      rw [k1] at hyp2; split_hyp_ors
-      . rename_i hh
-        obtain ⟨ ⟨ a2', hh' ⟩ , _⟩ := hh
-        apply is_smaller_perm
-        . apply h10
-        . grind
-      . grind
-    apply is_sorted_using_pivot <;> assumption
-  . -- is_perm
-    rename_i old lo hi _ _ _ _ _ _ p a0 _ _ _ a1 _ a2 _
-    have h0 : is_perm old.elems a0.elems lo hi := by simp_all [sort_is_perm]
-    have h01 : is_perm a0.elems a1.elems lo hi := by simp_all [k0, sort_is_perm, is_perm, is_frame]; grind
-    have h1 : is_perm old.elems a1.elems lo hi := by apply is_perm_trans; apply h0; assumption
-    have h12 : is_perm a1.elems a2.elems lo hi := by simp_all [k1, sort_is_perm, is_perm, is_frame]; grind
-    have h2 : is_perm old.elems a2.elems lo hi := by apply is_perm_trans; apply h1; assumption
-    assumption
-  . simp_all [k1, sort_is_perm, is_frame]; grind
-  . simp_all [k1, sort_is_perm, is_frame]; grind
-
-
+  fusion
+  intro old₀ lo₀ hi₀ hlolen hhilen hlen hlo hhi
+  refine ⟨?_, ?_⟩
+  · -- base case: ¬ lo₀ < hi₀
+    intro hnlt
+    refine ⟨rfl, ?_, ?_⟩
+    · simp [sort_is_sorted_between]; grind
+    · apply sort_is_perm_id
+  · -- recursive case: lo₀ < hi₀
+    intro hlt p₀ v₀ hv₀ hv₀len hp₀
+    obtain ⟨hv₀_len, hpart, hperm₀, hlop, hphi⟩ := hv₀
+    refine ⟨?_, ?_⟩
+    · intro hlolt; refine ⟨by omega, by omega, by omega⟩
+    · intro a'₃ hbranch
+      -- hbranch : (¬lo₀ < p₀ ∧ …) ∨ (lo₀ < p₀ ∧ ∃ v₁, …) — the lower-half recursive call result
+      -- facts about a'₃ (result of sorting the lower half [lo₀, p₀))
+      have ha3len : a'₃.len = old₀.len := by
+        rcases hbranch with ⟨_, h⟩ | ⟨_, _, h⟩ <;> grind
+      have ha3sorted : sort_is_sorted_between a'₃.elems lo₀ p₀ := by
+        rcases hbranch with ⟨hn, h⟩ | ⟨_, vv, h⟩ <;> simp_all [sort_is_sorted_between]; grind
+      have ha3p : a'₃.elems p₀ = v₀.elems p₀ := by
+        rcases hbranch with ⟨_, h⟩ | ⟨_, vv, ⟨_, _, hpm⟩, _, h⟩ <;>
+          (try simp only [sort_is_perm, is_frame] at hpm) <;> grind
+      have ha3perm : sort_is_perm v₀.elems a'₃.elems lo₀ (p₀ - 1) := by
+        rcases hbranch with ⟨_, h⟩ | ⟨_, vv, ⟨_, _, hpm⟩, _, h⟩ <;>
+          simp only [sort_is_perm, is_perm, is_frame] at * <;> grind
+      have ha3bigger : sort_is_bigger a'₃.elems lo₀ p₀ p₀ := bigger_perm hpart.1 ha3perm
+      have ha3smaller : sort_is_smaller a'₃.elems p₀ (hi₀ + 1) p₀ := is_smaller_perm' hpart.2 ha3perm
+      refine ⟨?_, ?_⟩
+      · intro hnph; refine ⟨ha3len, ?_, ?_⟩
+        · simp_all [sort_is_sorted_between]; grind
+        · exact sort_is_perm_trans hperm₀ (perm_widen_lo ha3perm hphi)
+      · intro hph
+        refine ⟨by omega, by omega, ?_⟩
+        intro a'₅ hbr5 _hv2len
+        obtain ⟨ha5_a3len, ha5sorted_hi_raw, ha5perm_raw⟩ := hbr5
+        have ha5len : a'₅.len = old₀.len := by grind
+        have ha5sorted_hi : sort_is_sorted_between a'₅.elems (p₀ + 1) (hi₀ + 1) := ha5sorted_hi_raw
+        have ha5perm : sort_is_perm a'₃.elems a'₅.elems (p₀ + 1) hi₀ := ha5perm_raw
+        -- a'₅ agrees with a'₃ on the lower half (frame of the upper-half sort)
+        have hframe5 : ∀ i, i < p₀ + 1 → a'₅.elems i = a'₃.elems i := by
+          have h := ha5perm; simp only [sort_is_perm, is_frame] at h; exact h.2.1
+        have h11 : sort_is_smaller a'₅.elems p₀ (hi₀ + 1) p₀ := is_smaller_perm ha3smaller ha5perm
+        have h_lo_p : sort_is_sorted_between a'₅.elems lo₀ p₀ := by
+          intro i j hij
+          rw [hframe5 i (by omega), hframe5 j (by omega)]; exact ha3sorted i j hij
+        have h_p_bigger : sort_is_bigger a'₅.elems lo₀ p₀ p₀ := by
+          intro ix hix
+          rw [hframe5 ix (by omega), hframe5 p₀ (by omega)]; exact ha3bigger ix hix
+        refine ⟨ha5len, is_sorted_using_pivot h_lo_p ha5sorted_hi h_p_bigger h11, ?_⟩
+        exact sort_is_perm_trans hperm₀
+          (sort_is_perm_trans (perm_widen_lo ha3perm hphi) (perm_widen_hi ha5perm hlop))
 
 end F

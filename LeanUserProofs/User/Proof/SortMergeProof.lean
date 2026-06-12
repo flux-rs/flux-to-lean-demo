@@ -1,6 +1,8 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortMerge
 import LeanProofs.Lib.Lemmas
+import LeanFixpoint
+
 open Classical
 set_option linter.unusedVariables false
 
@@ -51,8 +53,6 @@ attribute [grind] k8
 attribute [grind] k9
 attribute [grind] k10
 attribute [grind] k11
-attribute [grind] k12
-attribute [grind] k13
 attribute [grind] sort_is_sorted_between
 attribute [grind] is_frame
 attribute [simp] LeanProofs.Lib.Lemmas.arr_get
@@ -199,121 +199,51 @@ theorem is_mix_set_r (v1 v2 : Arr Int)
       · have hxne : x ≠ out := by omega
         simpa [arr_set, hxne] using heq
 
+/-- `a3` equals `old` on `[lo, k)`, `old` is sorted on the left half `[lo, mid+1)` and
+    the right half `[mid+1, hi+1)`. Then `a3 m ≤ a3 n` whenever `m < n` and both indices
+    lie inside the same half. The two sortedness hypotheses have rigid window shapes so
+    `assumption` matches them to the correct (distinct) facts, and `omega` picks the half. -/
+private theorem a3_le_merge (a3 old : Arr Int) (lo k mid hi m n : Int)
+    (heqb : vectors_arr_eq_between a3 old lo k)
+    (hL : sort_is_sorted_between old lo (mid + 1))
+    (hR : sort_is_sorted_between old (mid + 1) (hi + 1))
+    (hmn : m < n) (hlom : lo ≤ m) (hnk : n < k)
+    (hcase : (lo ≤ m ∧ n < mid + 1) ∨ (mid + 1 ≤ m ∧ n < hi + 1)) :
+    a3 m ≤ a3 n := by
+  have em : a3 m = old m := heqb m ⟨by omega, by omega⟩
+  have en : a3 n = old n := heqb n ⟨by omega, by omega⟩
+  rw [em, en]
+  rcases hcase with ⟨h1, h2⟩ | ⟨h1, h2⟩
+  · exact hL m n ⟨h1, hmn, h2⟩
+  · exact hR m n ⟨h1, hmn, h2⟩
+
 set_option maxHeartbeats 1500000
 
-def SortMerge_proof : SortMerge := by
+theorem SortMerge_proof : SortMerge := by
   unfold SortMerge
-  exists sortmerge_k0 ; exists sortmerge_k1 ; exists sortmerge_k2
-  exists sortmerge_k3 ; exists k4 ; exists k5
-  exists k6 ; exists k7 ; exists k8 ; exists k9
-  exists k10 ; exists k11 ; exists k12 ; exists k13
+  fusion
+  exists sortmerge_k0 ; exists sortmerge_k1 ; exists sortmerge_k2; exists sortmerge_k3 ;
   intros _ lo
   zap
-  · grind only [is_mix]
-  · grind only [sortmerge_k0, sortmerge_k2, eq_mix_perm]
-  · unfold sortmerge_k0 sortmerge_k2 k4 k5 k6 at *
-    split_hyps
-    · grind only [sort_is_sorted_between]
-    · simp_all [-sort_is_sorted_between]
-      apply sorted_set
-      assumption
-      assumption
-  · unfold sortmerge_k0 sortmerge_k2 k4 k5 k6 at *
-    split_hyps
-    all_goals (simp_all ; grind)
-  · unfold sortmerge_k0 sortmerge_k2 k5 k6 at *
-    split_hyps
-    all_goals (simp_all ; grind)
-  · unfold sortmerge_k2 at *
-    split_hyp_ands ; simp_all
-    apply is_mix_set_l
-    assumption
-    assumption
-  · right ; and_intros
-    · grind only [sortmerge_k2]
-    · intros
-      unfold sortmerge_k0 sortmerge_k2 at *
-      rename_i i _ _ _ _ _ _ _ _ _ _ _ _ _
-      have : lo ≤ i := by omega
-      simp_all [vectors_arr_eq_between]
-      split_hyp_ands
-      rename_i h _ _ _
-      rw [h, h]
-      apply_assumption
-      all_goals omega
-    · intros
-      unfold sortmerge_k2 at *
-      split_hyps <;> simp_all
-  · unfold sortmerge_k0 sortmerge_k2 k8 at *
-    split_hyps
-      <;> simp_all [-sort_is_sorted_between]
-      <;> try grind
-    · apply sorted_set
-      assumption
-      grind only
-    · apply sorted_set
-      assumption
-      grind only
-    · apply sorted_set
-      assumption
-      grind only
-  · unfold sortmerge_k0 sortmerge_k2 k8 at *
-    split_hyps
-      <;> simp_all
-      <;> grind
-  · unfold sortmerge_k0 sortmerge_k2 k8 at *
-    split_hyps
-      <;> simp_all
-      <;> grind
-  · rename_i out _ _ _ _ _ _ _ _ _
-    unfold k8 at *
-    split_hyps
-      <;> simp_all
-      <;> unfold sortmerge_k2 at *
-      <;> split_hyp_ands
-      <;> grind [is_mix_set_l, is_mix_set_r]
-  · right ; and_intros
-    · grind only [sortmerge_k2]
-    · intros
-      unfold sortmerge_k0 sortmerge_k2 k8 at *
-      split_hyps <;> simp_all [vectors_arr_eq_between]
-      any_goals grind
-      rename_i h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-      rw [h]
-      any_goals grind
-      apply_assumption
-      all_goals grind
-    · intros
-      unfold sortmerge_k0 sortmerge_k2 k8 at *
-      split_hyps <;> simp_all [vectors_arr_eq_between]
-      any_goals grind
-      rename_i h1 _ _ _ _ h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-      rw [h, h]
-      any_goals grind
-      apply h1
-      assumption
-      omega
-      grind only
-      rename_i h1 _ _ _ _ h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-      rw [h, h]
-      any_goals grind
-      apply h1
-      assumption
-      omega
-      grind only
-      rename_i h1 _ _ _ _ h _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-      rw [h, h]
-      any_goals grind
-      apply h1
-      assumption
-      omega
-      grind only
-  · unfold sortmerge_k0 k12 at *
-    split_hyps
-    simp_all ; grind only [is_frame]
-  · unfold sortmerge_k0 k12 at *
-    split_hyps
-    simp_all ; grind only [is_frame]
-  · simp_all [vectors_arr_eq_between, sortmerge_k0, k12]
-    grind only
+  all_goals (try unfold sortmerge_k0 sortmerge_k2 sortmerge_k3 at *)
+  all_goals (try split_hyps)
+  all_goals
+    first
+      | (apply sorted_set <;> (first | assumption | grind | (simp_all <;> grind)))
+      | (apply is_mix_set_l <;> assumption)
+      | (apply is_mix_set_r <;> assumption)
+      | (right ; and_intros <;>
+          (first
+            | grind only
+            | (intros; subst_vars;
+                simp only [vectors_arr_set, vectors_arr_get, arr_set, arr_get,
+                           show ∀ z : Int, z + 1 - 1 = z from fun z => by omega, if_true];
+                (first | (apply a3_le_merge <;> (first | assumption | omega)) | omega))
+            | simp_all))
+      | (simp only [vectors_arr_set, vectors_arr_get, arr_set, arr_get] <;> grind [is_frame])
+      | grind only [is_mix]
+      | (simp_all [vectors_arr_eq_between] ; grind only)
+      | grind only [eq_mix_perm]
+  -- mop up the trivial ≤ comparison leftovers from the merge-ordering branches
+  all_goals omega
 end F
