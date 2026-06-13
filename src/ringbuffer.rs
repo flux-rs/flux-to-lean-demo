@@ -2,8 +2,13 @@ use flux_rs::{opaque, refined_by, spec, trusted};
 
 flux_rs::defs! {
 
-    fn init_inv(num_enqueues: int, len: int, init: Map<int, bool>) -> bool;
+    fn init_inv(num_enqueues: int, len: int, init: Map<int, bool>) -> bool {
+        forall idx in int {
+            (0 <= idx && idx < min(num_enqueues, len)) => map_get(init, idx)
+        }
+    }
         // forall|idx: int| (0 <= idx && idx < min(num_enqueues, len)) ==> map_get(init, idx)
+        // ∀ idx, (0 <= idx ∧ idx < my_min num_enqueues len) → SmtMap_select init idx
 
     fn map_set<K, V>(m:Map<K, V>, k: K, v: V) -> Map<K, V> { map_store(m, k, v) }
 

@@ -9,7 +9,7 @@ edition = "2024"
 incremental = true
 
 [package.metadata.flux]
-cache = false
+cache = true
 enabled = true
 lean = "check"
 
