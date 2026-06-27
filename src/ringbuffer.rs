@@ -3,7 +3,7 @@ use flux_rs::{opaque, refined_by, spec, trusted};
 flux_rs::defs! {
 
     fn init_inv(num_enqueues: int, len: int, init: Map<int, bool>) -> bool {
-        forall idx in int {
+        forall idx {
             (0 <= idx && idx < min(num_enqueues, len)) => map_get(init, idx)
         }
     }
