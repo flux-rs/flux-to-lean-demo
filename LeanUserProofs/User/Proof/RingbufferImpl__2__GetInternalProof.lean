@@ -9,19 +9,14 @@ namespace F
 
 def RingbufferImpl__2__GetInternal_proof: RingbufferImpl__2__GetInternal := by
   unfold RingbufferImpl__2__GetInternal
-  exists (fun _ _ _ _ _ _ _ _ => True),
-         (fun a _ _ _ _ _ elems idx => a = ringbuffer_fslice_get elems idx)
+  fusion
   intros s0 index0 ix_len inv_hyp enq_len_hyp inv0 idx_nonneg
   constructor
   · intro hC _ _
     simp [hC]
   · intro hC _ _
-    refine ⟨?_, fun _ => trivial, fun _ => ⟨rfl, fun a'₂ ha'₂ => ha'₂⟩⟩
-    refine inv_hyp index0 ⟨idx_nonneg, ?_⟩
     by_cases h : s0.num_enqueues < s0.len
-    · simp only [h, if_true]
-      obtain ⟨htl, hhd⟩ := enq_len_hyp h
-      by_cases hd_eq_tl : s0.hd = s0.tl
+    · by_cases hd_eq_tl : s0.hd = s0.tl
       · exfalso
         rw [hd_eq_tl] at hC
         rw [if_neg (show ¬ s0.tl > s0.tl by omega), if_neg (show ¬ s0.tl < s0.tl by omega)] at hC
@@ -32,11 +27,8 @@ def RingbufferImpl__2__GetInternal_proof: RingbufferImpl__2__GetInternal := by
         by_cases hge : index0 ≥ s0.hd
         · have hrw : index0 + s0.len - s0.hd = (index0 - s0.hd) + s0.len * 1 := by omega
           rw [hrw, Int.add_mul_emod_self_left, Int.emod_eq_of_lt (by omega) (by omega)] at hC
-          omega
-        · exfalso
-          rw [Int.emod_eq_of_lt (by omega) (by omega)] at hC
-          omega
-    · simp only [h, if_false]
-      exact ix_len
+          grind
+        · grind
+    · grind
 
 end F
