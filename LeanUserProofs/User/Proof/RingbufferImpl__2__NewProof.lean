@@ -9,8 +9,6 @@ namespace F
 
 def RingbufferImpl__2__New_proof : RingbufferImpl__2__New := by
   unfold RingbufferImpl__2__New
-  intros
   grind
-
 
 end F

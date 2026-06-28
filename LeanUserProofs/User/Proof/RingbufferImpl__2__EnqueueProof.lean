@@ -21,17 +21,12 @@ theorem mod_silly (a b : Int) : 0 <= a -> 0 <= b -> a < b ->  (a % b) = a := by
 def RingbufferImpl__2__Enqueue_proof : RingbufferImpl__2__Enqueue := by
   unfold RingbufferImpl__2__Enqueue
   zapNamed
-  . have _ : s₀.num_enqueues < s₀.len := by omega
-    have _ : s₀.tl = s₀.num_enqueues := by omega
-    simp_all[]
-    apply mod_silly <;> grind
-  . have _ : s₀.num_enqueues < s₀.len := by omega
-    have _ : s₀.tl = s₀.num_enqueues := by omega
-    simp_all []
-    have _ : (s₀.num_enqueues + 1) % s₀.len =  (s₀.num_enqueues + 1) := by
-      apply mod_silly <;> grind
-    grind
-  . apply mod_non_neg; grind
-  . apply mod_lt; grind
-
+  · obtain ⟨htl, _⟩ := ‹s₀.num_enqueues < s₀.len → s₀.tl = s₀.num_enqueues ∧ s₀.hd ≤ s₀.tl› (by omega)
+    rw [htl]
+    apply mod_silly <;> omega
+  · obtain ⟨htl, hhd⟩ := ‹s₀.num_enqueues < s₀.len → s₀.tl = s₀.num_enqueues ∧ s₀.hd ≤ s₀.tl› (by omega)
+    have heq : (s₀.tl + 1) % s₀.len = s₀.num_enqueues + 1 := by rw [htl]; apply mod_silly <;> omega
+    omega
+  · apply mod_non_neg; omega
+  · apply mod_lt; omega
 end F
