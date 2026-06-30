@@ -1,9 +1,11 @@
+use std::mem::MaybeUninit;
+
 use flux_rs::{opaque, refined_by, spec, trusted};
 
 flux_rs::defs! {
 
     fn init_inv(num_enqueues: int, len: int, init: Map<int, bool>) -> bool {
-        forall idx in int {
+        forall idx {
             (0 <= idx && idx < min(num_enqueues, len)) => map_get(init, idx)
         }
     }
@@ -76,12 +78,12 @@ impl Ghost {
 #[flux_rs::opaque]
 #[flux_rs::refined_by(len: int, init: Map<int, bool>)]
 #[repr(transparent)]
-pub struct FluxSlice<'a, T>(&'a mut [T]);
+pub struct FluxSlice<'a, T>(&'a mut [MaybeUninit<T>]);
 
 impl<'a, T> FluxSlice<'a, T> {
     #[flux_rs::trusted]
     #[flux_rs::sig(fn(&mut [T][@n]) -> FluxSlice<T>{fs: fs.len == n})]
-    pub fn from_mut(slice: &'a mut [T]) -> Self {
+    pub fn from_mut(slice: &'a mut [MaybeUninit<T>]) -> Self {
         // SAFETY: FluxSlice<T> is repr(transparent) over [T]
         // EVAN? unsafe { &mut *(slice as *mut [T] as *mut FluxSlice<T>) }
         FluxSlice(slice)
@@ -99,7 +101,7 @@ impl<'a, T> FluxSlice<'a, T> {
     where
         T: Copy,
     {
-        self.0[index]
+        unsafe { self.0[index].assume_init() }
     }
 
     #[flux_rs::trusted]
@@ -108,7 +110,7 @@ impl<'a, T> FluxSlice<'a, T> {
         ensures self: FluxSlice<T>[n, map_set(f, index, true)]
     )]
     pub fn set(&mut self, index: usize, val: T) {
-        self.0[index] = val;
+        self.0[index] = MaybeUninit::new(val);
     }
 }
 
