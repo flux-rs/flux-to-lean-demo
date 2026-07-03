@@ -4,14 +4,6 @@ use flux_rs::{opaque, refined_by, spec, trusted};
 
 flux_rs::defs! {
 
-    fn init_inv(num_enqueues: int, len: int, init: Map<int, bool>) -> bool {
-        forall idx {
-            (0 <= idx && idx < min(num_enqueues, len)) => map_get(init, idx)
-        }
-    }
-        // forall|idx: int| (0 <= idx && idx < min(num_enqueues, len)) ==> map_get(init, idx)
-        // ∀ idx, (0 <= idx ∧ idx < my_min num_enqueues len) → SmtMap_select init idx
-
     fn map_set<K, V>(m:Map<K, V>, k: K, v: V) -> Map<K, V> { map_store(m, k, v) }
 
     fn map_get<K, V>(m: Map<K, V>, k:K) -> V { map_select(m, k) }
@@ -43,6 +35,12 @@ flux_rs::defs! {
     fn rb_is_valid(rb: RingBuffer, index: int) -> bool {
         ((index + rb.len - rb.hd) % rb.len) < rb_len(rb)
     }
+
+    fn init_inv(rb: RingBuffer, init: Map<int, bool>) -> bool {
+        forall idx {
+            (0 <= idx && idx < rb.len) => (rb_is_valid(rb, idx) => map_get(init, idx))
+        }
+    }
 }
 
 // ======== Extern specs ========
@@ -58,21 +56,6 @@ mod flux_specs {
     }
 }
 
-// Ghost "counter" type; will be used to count the number of enqueues in the ring buffer.
-#[opaque]
-#[refined_by(n: int)]
-pub struct Ghost;
-
-impl Ghost {
-    #[trusted]
-    #[spec(fn () -> Self[0])]
-    pub fn new() -> Self {
-        Self
-    }
-    #[trusted]
-    #[spec(fn (me: &mut Self[@n]) ensures me: Self[n+1])]
-    pub fn bump(&mut self) {}
-}
 // ===== FluxSlice ============================================================
 
 #[flux_rs::opaque]
@@ -82,7 +65,7 @@ pub struct FluxSlice<'a, T>(&'a mut [MaybeUninit<T>]);
 
 impl<'a, T> FluxSlice<'a, T> {
     #[flux_rs::trusted]
-    #[flux_rs::sig(fn(&mut [T][@n]) -> FluxSlice<T>{fs: fs.len == n})]
+    #[flux_rs::sig(fn(&mut [MaybeUninit<T>][@n]) -> FluxSlice<T>{fs: fs.len == n})]
     pub fn from_mut(slice: &'a mut [MaybeUninit<T>]) -> Self {
         // SAFETY: FluxSlice<T> is repr(transparent) over [T]
         // EVAN? unsafe { &mut *(slice as *mut [T] as *mut FluxSlice<T>) }
@@ -116,10 +99,9 @@ impl<'a, T> FluxSlice<'a, T> {
 
 // ===== RingBuffer ==========================================================
 
-#[flux_rs::refined_by(len: int, hd: int, tl: int, num_enqueues: int, init: Map<int, bool>)]
-#[flux_rs::invariant(0 < len && 0 <= hd && hd < len && 0 <= tl && tl < len && 0 <= num_enqueues)]
-#[flux_rs::invariant(num_enqueues < len => (tl == num_enqueues && hd <= tl))]
-#[flux_rs::invariant(init_inv(num_enqueues, len, init))]
+#[flux_rs::refined_by(len: int, hd: int, tl: int, init: Map<int, bool>)]
+#[flux_rs::invariant(0 < len && 0 <= hd && hd < len && 0 <= tl && tl < len)]
+#[flux_rs::invariant(init_inv(RingBuffer{ len: len, hd: hd, tl: tl, init: init}, init))]
 pub struct RingBuffer<'a, T: Copy + 'a> {
     #[flux_rs::field(FluxSlice<T>[len, init])]
     ring: FluxSlice<'a, T>,
@@ -127,32 +109,32 @@ pub struct RingBuffer<'a, T: Copy + 'a> {
     head: usize,
     #[flux_rs::field(usize[tl])]
     tail: usize,
-    #[flux_rs::field(Ghost[num_enqueues])]
-    ghost: Ghost,
 }
 
 impl<'a, T: Copy> RingBuffer<'a, T> {
     #[flux_rs::proven_externally(proof)]
-    #[flux_rs::sig(fn({FluxSlice<T>[@len, @f] | 0 < len}) -> RingBuffer<T>[len, 0, 0, 0, f])]
+    #[flux_rs::sig(fn({FluxSlice<T>[@len, @f] | 0 < len}) -> RingBuffer<T>[len, 0, 0, f])]
     pub fn new(ring: FluxSlice<'a, T>) -> RingBuffer<'a, T> {
         RingBuffer {
             head: 0,
             tail: 0,
             ring,
-            ghost: Ghost::new(),
         }
     }
 
+    #[flux_rs::proven_externally]
     #[flux_rs::sig(fn(self: &RingBuffer<T>[@s]) -> bool[rb_is_full(s)])]
     pub fn is_full(&self) -> bool {
         self.head == ((self.tail + 1) % self.ring.len())
     }
 
+    #[flux_rs::proven_externally]
     #[flux_rs::sig(fn(self: &RingBuffer<T>[@s]) -> bool[!rb_is_empty(s)])]
     pub fn has_elements(&self) -> bool {
         self.head != self.tail
     }
 
+    #[flux_rs::proven_externally]
     #[flux_rs::sig(fn(self: &RingBuffer<T>[@s]) -> usize[rb_len(s)])]
     fn len(&self) -> usize {
         if self.tail > self.head {
@@ -164,6 +146,7 @@ impl<'a, T: Copy> RingBuffer<'a, T> {
         }
     }
 
+    #[flux_rs::proven_externally]
     #[flux_rs::sig(fn(self: &RingBuffer<T>[@s], index: usize) -> bool[rb_is_valid(s, index)])]
     fn is_valid(&self, index: usize) -> bool {
         let capacity = self.ring.len();
@@ -182,18 +165,18 @@ impl<'a, T: Copy> RingBuffer<'a, T> {
     }
 
     #[flux_rs::proven_externally(proof)]
-    #[flux_rs::sig(fn(self: &strg RingBuffer<T>[@s], val: T) -> bool[#b] ensures self: RingBuffer<T>{ v: v.num_enqueues == if b { s.num_enqueues + 1 } else { s.num_enqueues } })]
+    #[flux_rs::sig(fn(self: &strg RingBuffer<T>[@s], val: T) -> bool[#b] ensures self: RingBuffer<T>)]
     pub fn enqueue(&mut self, val: T) -> bool {
         if self.is_full() {
             false
         } else {
             self.ring.set(self.tail, val);
             self.tail = (self.tail + 1) % self.ring.len();
-            self.ghost.bump();
             true
         }
     }
 
+    #[flux_rs::proven_externally]
     #[flux_rs::sig(fn(self: &strg RingBuffer<T>[@s]) -> Option<T> ensures self: RingBuffer<T>)]
     pub fn dequeue(&mut self) -> Option<T> {
         if self.head != self.tail {

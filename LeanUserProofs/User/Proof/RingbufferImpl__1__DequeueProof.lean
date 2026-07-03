@@ -1,6 +1,5 @@
 import LeanProofs.Flux.Prelude
-import LeanProofs.Flux.VC.RingbufferImpl__2__Dequeue
-import LeanProofs.Lib.Tactics
+import LeanProofs.Flux.VC.RingbufferImpl__1__Dequeue
 open Classical
 set_option linter.unusedVariables false
 
@@ -19,8 +18,8 @@ theorem mod_silly (a b : Int) : 0 <= a -> 0 <= b -> a < b ->  (a % b) = a := by
   intro ha hb hab
   exact Int.emod_eq_of_lt ha hab
 
-def RingbufferImpl__2__Dequeue_proof : RingbufferImpl__2__Dequeue := by
-  unfold RingbufferImpl__2__Dequeue
+def RingbufferImpl__1__Dequeue_proof : RingbufferImpl__1__Dequeue := by
+  unfold RingbufferImpl__1__Dequeue
   simp_all
   repeat' (first | (intro) | apply And.intro)
   · grind
