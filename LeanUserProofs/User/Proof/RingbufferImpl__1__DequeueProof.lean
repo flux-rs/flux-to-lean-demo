@@ -1,5 +1,6 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.RingbufferImpl__1__Dequeue
+import LeanFixpoint
 open Classical
 set_option linter.unusedVariables false
 
@@ -20,9 +21,11 @@ theorem mod_silly (a b : Int) : 0 <= a -> 0 <= b -> a < b ->  (a % b) = a := by
 
 def RingbufferImpl__1__Dequeue_proof : RingbufferImpl__1__Dequeue := by
   unfold RingbufferImpl__1__Dequeue
+  fusion
   simp_all
-  repeat' (first | (intro) | apply And.intro)
-  · grind
+  repeat' (first | (intro) | apply And.intro | grind)
+  · apply_assumption <;> simp_all [Int.add_comm]
+    omega
   · rename_i s₀ hInv hL hH0 hHL hT0 hTL hHneT hLge hLne a'₁ ha0 haL hPos
     have hb1 : 0 ≤ (s₀.hd + 1) % s₀.len := mod_non_neg _ _ hL
     have hb2 : (s₀.hd + 1) % s₀.len < s₀.len := mod_lt _ _ hL

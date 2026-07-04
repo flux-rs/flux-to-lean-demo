@@ -155,16 +155,6 @@ impl<'a, T: Copy> RingBuffer<'a, T> {
     }
 
     #[flux_rs::proven_externally(proof)]
-    #[flux_rs::sig(fn(self: &RingBuffer<T>[@s], index: usize{index < s.len}) -> Option<T>[rb_is_valid(s, index)])]
-    fn get_internal(&self, index: usize) -> Option<T> {
-        if !self.is_valid(index) {
-            None
-        } else {
-            Some(self.ring.get(index))
-        }
-    }
-
-    #[flux_rs::proven_externally(proof)]
     #[flux_rs::sig(fn(self: &strg RingBuffer<T>[@s], val: T) -> bool[#b] ensures self: RingBuffer<T>)]
     pub fn enqueue(&mut self, val: T) -> bool {
         if self.is_full() {
@@ -180,9 +170,9 @@ impl<'a, T: Copy> RingBuffer<'a, T> {
     #[flux_rs::sig(fn(self: &strg RingBuffer<T>[@s]) -> Option<T> ensures self: RingBuffer<T>)]
     pub fn dequeue(&mut self) -> Option<T> {
         if self.head != self.tail {
-            let val = self.get_internal(self.head);
+            let val = self.ring.get(self.head);
             self.head = (self.head + 1) % self.ring.len();
-            val
+            Some(val)
         } else {
             None
         }
