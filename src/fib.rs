@@ -92,6 +92,25 @@ pub fn fib_fast(n: usize) -> usize {
     return curr;
 }
 
+#[proven_externally]
+#[spec(fn(usize[@n]) -> usize[spec_fib(n)] requires spec_fib(n) < usize::MAX)]
+#[opts(check_overflow = "strict")]
+pub fn fib_fasto(n: usize) -> usize {
+    if n <= 1 {
+        return 1;
+    }
+    let mut prev = 1;
+    let mut curr = 2;
+    let mut i = 2;
+    while i < n {
+        let next = prev + curr;
+        prev = curr;
+        curr = next;
+        i += 1;
+    }
+    return curr;
+}
+
 #[proven_externally(proof)]
 #[spec(fn (x: usize) -> usize{res: is_sqrt(res, x)})]
 pub fn sqrt(x: usize) -> usize {
