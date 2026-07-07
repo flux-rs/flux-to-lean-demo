@@ -82,7 +82,7 @@ flux_rs::defs! {
         }
     }
 
-    fn init_inv(rb: RingBuffer, init: Map<int, bool>) -> bool {
+    fn init_inv<T>(rb: RingBuffer<T>, init: Map<int, bool>) -> bool {
         forall idx {
             (0 <= idx && idx < rb.len) => (rb_is_valid(rb, idx) => map_get(init, idx))
         }

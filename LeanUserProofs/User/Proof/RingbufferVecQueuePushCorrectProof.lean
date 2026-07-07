@@ -26,7 +26,7 @@ theorem slice00 (s : FSlice Int)
 
 def RingbufferVecQueuePushCorrect_proof : RingbufferVecQueuePushCorrect := by
   unfold RingbufferVecQueuePushCorrect
-  intro rb vq elem vqeq c1 c2 _ success nrb _ _ _ seq nrbeq successHyp
+  intro rb vq elem vqeq c1 c2 success nrb _ _ seq nrbeq successHyp
   rw [seq] at successHyp
   rw [if_pos successHyp] at nrbeq
   have nrbtleq : nrb.tl = (rb.tl + 1) % (ringbuffer_fslice_len rb.elems) := by rw [nrbeq]
