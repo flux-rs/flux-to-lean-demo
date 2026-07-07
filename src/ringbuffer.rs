@@ -1,3 +1,5 @@
+use std::mem::MaybeUninit;
+
 use flux_rs::{opaque, refined_by, spec, trusted};
 
 flux_rs::defs! {
@@ -11,14 +13,6 @@ flux_rs::defs! {
     fn fslice_append<T>(s1: FSlice<T>, s2: FSlice<T>) -> FSlice<T>;
     fn fslice_subslice<T>(s: FSlice<T>, l: int, r: int) -> FSlice<T>;
 
-    fn init_inv(num_enqueues: int, len: int, init: Map<int, bool>) -> bool {
-        forall idx {
-            (0 <= idx && idx < min(num_enqueues, len)) => map_get(init, idx)
-        }
-    }
-        // forall|idx: int| (0 <= idx && idx < min(num_enqueues, len)) ==> map_get(init, idx)
-        // ∀ idx, (0 <= idx ∧ idx < my_min num_enqueues len) → SmtMap_select init idx
-
     fn map_set<K, V>(m:Map<K, V>, k: K, v: V) -> Map<K, V> { map_store(m, k, v) }
 
     fn map_get<K, V>(m: Map<K, V>, k:K) -> V { map_select(m, k) }
@@ -27,10 +21,6 @@ flux_rs::defs! {
 
     fn min(a: int, b: int) -> int {
         if a < b { a } else { b }
-    }
-
-    fn is_init(len: int, num_enqueues: int, index: int) -> bool {
-        0 <= index && index < min(num_enqueues, len)
     }
 
     fn rb_len<T>(rb: RingBuffer<T>) -> int {
@@ -60,7 +50,6 @@ flux_rs::defs! {
             len          : old.len,
             hd           : if rb_is_full(old) { rb_next_hd(old) } else { old.hd },
             tl           : rb_next_tl(old),
-            num_enqueues : old.num_enqueues + 1,
             elems        : fslice_set(old.elems, old.tl, val),
             init         : map_set(old.init, old.tl, true)
         }
@@ -92,6 +81,12 @@ flux_rs::defs! {
             fslice_subslice(rb.elems, rb.hd, rb.tl)
         }
     }
+
+    fn init_inv(rb: RingBuffer, init: Map<int, bool>) -> bool {
+        forall idx {
+            (0 <= idx && idx < rb.len) => (rb_is_valid(rb, idx) => map_get(init, idx))
+        }
+    }
 }
 
 // ======== Extern specs ========
@@ -107,33 +102,18 @@ mod flux_specs {
     }
 }
 
-// Ghost "counter" type; will be used to count the number of enqueues in the ring buffer.
-#[opaque]
-#[refined_by(n: int)]
-pub struct Ghost;
-
-impl Ghost {
-    #[trusted]
-    #[spec(fn () -> Self[0])]
-    pub fn new() -> Self {
-        Self
-    }
-    #[trusted]
-    #[spec(fn (me: &mut Self[@n]) ensures me: Self[n+1])]
-    pub fn bump(&mut self) {}
-}
 // ===== FluxSlice ============================================================
 
 #[flux_rs::opaque]
 #[flux_rs::refined_by(len: int, init: Map<int, bool>, elems: FSlice<T>)]
 #[flux_rs::invariant(len == fslice_len(elems))]
 #[repr(transparent)]
-pub struct FluxSlice<'a, T>(&'a mut [T]);
+pub struct FluxSlice<'a, T>(&'a mut [MaybeUninit<T>]);
 
 impl<'a, T> FluxSlice<'a, T> {
     #[flux_rs::trusted]
-    #[flux_rs::sig(fn(&mut [T][@n]) -> FluxSlice<T>{fs: fs.len == n})]
-    pub fn from_mut(slice: &'a mut [T]) -> Self {
+    #[flux_rs::sig(fn(&mut [MaybeUninit<T>][@n]) -> FluxSlice<T>{fs: fs.len == n})]
+    pub fn from_mut(slice: &'a mut [MaybeUninit<T>]) -> Self {
         // SAFETY: FluxSlice<T> is repr(transparent) over [T]
         // EVAN? unsafe { &mut *(slice as *mut [T] as *mut FluxSlice<T>) }
         FluxSlice(slice)
@@ -151,7 +131,7 @@ impl<'a, T> FluxSlice<'a, T> {
     where
         T: Copy,
     {
-        self.0[index]
+        unsafe { self.0[index].assume_init() }
     }
 
     #[flux_rs::trusted]
@@ -160,16 +140,15 @@ impl<'a, T> FluxSlice<'a, T> {
         ensures self: FluxSlice<T>[n, map_set(f, index, true), fslice_set(e, index, val)]
     )]
     pub fn set(&mut self, index: usize, val: T) {
-        self.0[index] = val;
+        self.0[index] = MaybeUninit::new(val);
     }
 }
 
 // ===== RingBuffer ==========================================================
 
-#[flux_rs::refined_by(len: int, hd: int, tl: int, num_enqueues: int, init: Map<int, bool>, elems: FSlice<T>)]
-#[flux_rs::invariant(1 < len && 0 <= hd && hd < len && 0 <= tl && tl < len && 0 <= num_enqueues && len == fslice_len(elems))]
-#[flux_rs::invariant(num_enqueues < len => (tl == num_enqueues && hd <= tl))]
-#[flux_rs::invariant(init_inv(num_enqueues, len, init))]
+#[flux_rs::refined_by(len: int, hd: int, tl: int, init: Map<int, bool>, elems: FSlice<T>)]
+#[flux_rs::invariant(1 < len && 0 <= hd && hd < len && 0 <= tl && tl < len && len == fslice_len(elems))]
+#[flux_rs::invariant(init_inv(RingBuffer{ len: len, hd: hd, tl: tl, init: init, elems: elems}, init))]
 pub struct RingBuffer<'a, T: Copy + 'a> {
     #[flux_rs::field(FluxSlice<T>[len, init, elems])]
     ring: FluxSlice<'a, T>,
@@ -177,19 +156,16 @@ pub struct RingBuffer<'a, T: Copy + 'a> {
     head: usize,
     #[flux_rs::field(usize[tl])]
     tail: usize,
-    #[flux_rs::field(Ghost[num_enqueues])]
-    ghost: Ghost,
 }
 
 impl<'a, T: Copy> RingBuffer<'a, T> {
     #[flux_rs::proven_externally(proof)]
-    #[flux_rs::sig(fn({FluxSlice<T>[@len, @f, @e] | 1 < len}) -> RingBuffer<T>[len, 0, 0, 0, f, e])]
+    #[flux_rs::sig(fn({FluxSlice<T>[@len, @f, @e] | 1 < len}) -> RingBuffer<T>[len, 0, 0, f, e])]
     pub fn new(ring: FluxSlice<'a, T>) -> RingBuffer<'a, T> {
         RingBuffer {
             head: 0,
             tail: 0,
             ring,
-            ghost: Ghost::new(),
         }
     }
 
@@ -226,16 +202,6 @@ impl<'a, T: Copy> RingBuffer<'a, T> {
     }
 
     #[flux_rs::proven_externally(proof)]
-    #[flux_rs::sig(fn(self: &RingBuffer<T>[@s], index: usize{index < s.len}) -> Option<T[fslice_get(s.elems, index)]>[rb_is_valid(s, index)])]
-    fn get_internal(&self, index: usize) -> Option<T> {
-        if !self.is_valid(index) {
-            None
-        } else {
-            Some(self.ring.get(index))
-        }
-    }
-
-    #[flux_rs::proven_externally(proof)]
     #[flux_rs::sig(fn(self: &strg RingBuffer<T>[@s], T[@val]) -> bool[#b] 
         ensures self: RingBuffer<T>[#nrb],
                 b == !rb_is_full(s),
@@ -247,21 +213,18 @@ impl<'a, T: Copy> RingBuffer<'a, T> {
         } else {
             self.ring.set(self.tail, val);
             self.tail = (self.tail + 1) % self.ring.len();
-            self.ghost.bump();
             true
         }
     }
 
     #[flux_rs::proven_externally]
-    #[flux_rs::sig(
-        fn(self: &strg RingBuffer<T>[@old]) -> Option<T[fslice_get(old.elems, old.hd)]>[!rb_is_empty(old)]
-            ensures self: Self[rb_dequeue(old)]
-    )]
+    #[flux_rs::sig(fn(self: &strg RingBuffer<T>[@old]) -> Option<T[fslice_get(old.elems, old.hd)]>[!rb_is_empty(old)]
+        ensures self: Self[rb_dequeue(old)])]
     pub fn dequeue(&mut self) -> Option<T> {
-        if self.has_elements() {
-            let val = self.get_internal(self.head);
+        if self.head != self.tail {
+            let val = self.ring.get(self.head);
             self.head = (self.head + 1) % self.ring.len();
-            val
+            Some(val)
         } else {
             None
         }
@@ -291,7 +254,6 @@ impl<'a, T: Copy> RingBuffer<'a, T> {
         };
         self.ring.set(self.tail, val);
         self.tail = (self.tail + 1) % self.ring.len();
-        self.ghost.bump();
         result
     }
 }
