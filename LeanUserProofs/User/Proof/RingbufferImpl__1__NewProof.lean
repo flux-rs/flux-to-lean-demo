@@ -8,9 +8,12 @@ namespace F
 
 def RingbufferImpl__1__New_proof : RingbufferImpl__1__New := by
   unfold RingbufferImpl__1__New
-  intros len init _ idx _ _
+  intros len init elems _ _
   simp_all
-  have := @Int.emod_nonneg idx len
-  grind
+  and_intros
+  · intro idx
+    have := @Int.emod_nonneg idx len
+    grind
+  · omega
 
 end F
