@@ -1,6 +1,6 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.FibFibFast
-import LeanFixpoint
+import Flex
 
 namespace F
 

@@ -1,7 +1,7 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortPartition
 import LeanProofs.Lib.Lemmas
-import LeanFixpoint
+import Flex
 --import LeanProofs.Lib.Tactics
 
 open Classical

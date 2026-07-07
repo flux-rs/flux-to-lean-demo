@@ -1,6 +1,6 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortQuicksort
-import LeanFixpoint
+import Flex
 import LeanProofs.Lib.Lemmas
 
 open Classical
