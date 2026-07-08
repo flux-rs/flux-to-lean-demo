@@ -1,6 +1,6 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortSwap
-import LeanFixpoint
+import Flex
 open Classical
 
 set_option linter.unusedVariables false

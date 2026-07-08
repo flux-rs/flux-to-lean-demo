@@ -1,7 +1,7 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortMergeSort
 import LeanProofs.User.Fun.VectorsArrEqBetween
-import LeanFixpoint
+import Flex
 
 open Classical
 

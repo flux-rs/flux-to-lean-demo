@@ -1,7 +1,7 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.VectorsTest1
 -- import LeanProofs.Lib.Tactics
-import LeanFixpoint
+import Flex
 import LeanProofs.Lib.Lemmas
 
 namespace F

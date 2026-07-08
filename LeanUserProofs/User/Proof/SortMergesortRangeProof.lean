@@ -1,6 +1,6 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortMergesortRange
-import LeanFixpoint
+import Flex
 
 open Classical
 

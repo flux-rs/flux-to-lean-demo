@@ -2,7 +2,7 @@ import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortTestSorted
 import LeanProofs.Lib.Lemmas
 -- import LeanProofs.Lib.Tactics
-import LeanFixpoint
+import Flex
 
 namespace F
 

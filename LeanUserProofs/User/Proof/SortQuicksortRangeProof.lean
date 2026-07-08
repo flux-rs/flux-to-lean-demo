@@ -1,7 +1,7 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortQuicksortRange
 import LeanProofs.Lib.Lemmas
-import LeanFixpoint
+import Flex
 
 -- import Aesop
 open Classical

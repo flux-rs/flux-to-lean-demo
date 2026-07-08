@@ -1,6 +1,6 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortInsertRec
-import LeanFixpoint
+import Flex
 import LeanProofs.Lib.Lemmas
 
 namespace F

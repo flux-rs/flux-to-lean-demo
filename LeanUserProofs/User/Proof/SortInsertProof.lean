@@ -1,7 +1,7 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortInsert
 -- import LeanProofs.Lib.Tactics
-import LeanFixpoint
+import Flex
 
 open Classical
 
