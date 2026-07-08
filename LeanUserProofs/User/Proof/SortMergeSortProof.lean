@@ -14,8 +14,6 @@ def mergesort_inv (celems : Arr Int) (clen : Int) (idx : Int) (oelems : Arr Int)
   clen = idx ∧
   vectors_arr_eq_between celems oelems 0 idx
 
-open SortMergeSortKVarSolutions
-
 def SortMergeSort_proof : SortMergeSort := by
   unfold SortMergeSort
   fusion

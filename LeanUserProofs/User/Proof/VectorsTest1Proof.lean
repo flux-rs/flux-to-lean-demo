@@ -5,7 +5,6 @@ import Flex
 import LeanProofs.Lib.Lemmas
 
 namespace F
-open VectorsTest1KVarSolutions
 
 def VectorsTest1_proof : VectorsTest1 := by
   unfold VectorsTest1

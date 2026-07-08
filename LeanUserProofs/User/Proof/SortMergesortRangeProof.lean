@@ -6,8 +6,6 @@ open Classical
 
 namespace F
 
-open SortMergesortRangeKVarSolutions
-
 theorem is_sorted_between_h (v1 v2 : Arr Int)
   (h1 : sort_is_sorted_between v1 m (r + 1))
   (h2 : sort_is_perm v2 v1 m r)
@@ -54,6 +52,6 @@ set_option maxHeartbeats 1000000
 def SortMergesortRange_proof : SortMergesortRange := by
   unfold SortMergesortRange
   fusion
-  zap
+  elim_leaves
 
 end F

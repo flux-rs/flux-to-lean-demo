@@ -4,8 +4,8 @@ defaultTargets = ["LeanProofs"]
 
 [[lean_lib]]
 name = "LeanProofs"
+globs = ["LeanProofs.+"]
 
 [[require]]
-name = "LeanFixpoint"
-git = "https://github.com/jam-khan/lean-fixpoint"
-rev = "main"
+name = "Flex"
+path = "../../Flex"

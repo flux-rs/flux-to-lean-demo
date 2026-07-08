@@ -8,7 +8,6 @@ set_option linter.unusedVariables false
 
 namespace F
 
-open SortMergeKVarSolutions
 open LeanProofs.Lib.Lemmas
 
 def is_mix (v1 v2 v3 : Arr Int) (l1 l2 l3 r1 r2 r3 : Int) : Prop :=
@@ -45,14 +44,6 @@ attribute [grind] sortmerge_k0
 attribute [grind] sortmerge_k1
 attribute [grind] sortmerge_k2
 attribute [grind] sortmerge_k3
-attribute [grind] k4
-attribute [grind] k5
-attribute [grind] k6
-attribute [grind] k7
-attribute [grind] k8
-attribute [grind] k9
-attribute [grind] k10
-attribute [grind] k11
 attribute [grind] sort_is_sorted_between
 attribute [grind] is_frame
 attribute [simp] LeanProofs.Lib.Lemmas.arr_get
@@ -224,7 +215,7 @@ theorem SortMerge_proof : SortMerge := by
   fusion
   exists sortmerge_k0 ; exists sortmerge_k1 ; exists sortmerge_k2; exists sortmerge_k3 ;
   intros _ lo
-  zap
+  elim_leaves
   all_goals (try unfold sortmerge_k0 sortmerge_k2 sortmerge_k3 at *)
   all_goals (try split_hyps)
   all_goals

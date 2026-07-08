@@ -20,5 +20,10 @@ log/
 # Source of truth for proofs is LeanUserProofs/ (savelean.sh copies them back).
 lean_proofs/
 
+# Lake build artifacts. LeanUserProofs/ is a source store, not built in place —
+# the editor may still generate these when it opens the folder; never commit them.
+.lake/
+LeanUserProofs/lake-manifest.json
+
 # Local editor / agent config
 .claude/

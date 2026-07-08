@@ -42,13 +42,12 @@ private theorem done_le (arr : Arr Int) (n k i j : Int)
       · have key := hsx i (k - 1) (by omega) (by omega) (by omega) (by omega); grind
     · exact hsx i j hi hij hjn (by omega)
 
-open SortInsertKVarSolutions in
 def SortInsert_proof : SortInsert := by
   unfold SortInsert
   fusion
   exists inv_insert;
   simp [LeanProofs.Lib.Lemmas.arr_get, inv_insert]
-  zap
+  elim_leaves
   · apply swap_le <;> assumption
   · apply done_le <;> assumption
 
