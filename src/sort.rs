@@ -3,6 +3,8 @@ use flux_rs::assert;
 use flux_rs::attrs::*;
 
 defs! {
+    use crate::vectors::{Arr, arr_get, arr_set, arr_eq_between};
+
     fn is_sorted_between(v: Arr<int>, lo: int, hi: int) -> bool;
     fn is_sorted_between_exc(v: Arr<int>, lo: int, hi: int, exc: int) -> bool;
     fn is_partitioned_by(v: Arr<int>, lo: int, mid: int, hi: int, pivot: int) -> bool;
