@@ -2,6 +2,10 @@ use std::collections::HashMap;
 
 use flux_rs::attrs::*;
 
+defs! {
+    use crate::fib::spec_fib;
+}
+
 // -------------------------------------------------------------------------
 // An API for a `Memo` table with a *generic* key-value refinement
 // -------------------------------------------------------------------------

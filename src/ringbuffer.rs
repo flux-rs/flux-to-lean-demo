@@ -262,6 +262,10 @@ mod vec_queue {
 
     use crate::ringbuffer::RingBuffer;
 
+    flux_rs::defs! {
+        use super::{FSlice, fslice_len, fslice_push, fslice_pop_front, rb_is_empty, rb_matches_lqueue};
+    }
+
     #[flux_rs::opaque]
     #[flux_rs::refined_by(elems: FSlice<T>)]
     struct LQueue<T> {
