@@ -38,6 +38,13 @@ pub fn twelve() -> usize {
     3 + 9
 }
 
+// Just tests pointer encoding
+#[flux_rs::proven_externally]
+#[flux_rs::spec(fn (_x: *const u8, n: i32{0 < n && n < 100}) -> i32{v: 1 < v})]
+pub fn ptr_test(_x: *const u8, n: i32) -> i32 {
+    n + 1
+}
+
 #[refined_by(x: int, y: bool)]
 pub struct Bozo {
     #[field(usize[x])]

@@ -9,6 +9,10 @@ defs! {
     fn is_sorted_between_exc(v: Arr<int>, lo: int, hi: int, exc: int) -> bool;
     fn is_partitioned_by(v: Arr<int>, lo: int, mid: int, hi: int, pivot: int) -> bool;
     fn is_perm(left: Arr<int>, right: Arr<int>, lo: int, hi: int) -> bool;
+    // every element of `v` in `[lo, hi)` is strictly smaller than `x`
+    fn all_lt_between(v: Arr<int>, lo: int, hi: int, x: int) -> bool;
+    // every element of `v` in `[lo, hi)` is strictly bigger than `x`
+    fn all_gt_between(v: Arr<int>, lo: int, hi: int, x: int) -> bool;
     fn is_sorted(v: AVec<int>) -> bool {
         is_sorted_between(v.elems, 0, v.len)
     }
@@ -17,6 +21,10 @@ defs! {
         let dst_val = arr_get(v, dst);
         arr_set(arr_set(v, src, dst_val), dst, src_val)
     }
+
+    // loop invariants for `binary_search`
+    local qualifier BelowTarget(i: int, v: Arr<int>, x: int) { i == 0 || arr_get(v, i - 1) < x }
+    local qualifier AboveTarget(i: int, v: Arr<int>, n: int, x: int) { i == n || x < arr_get(v, i) }
 }
 
 #[proven_externally(proof)]
@@ -313,4 +321,60 @@ mod test {
         crate::sort::quicksort(&mut vec);
         assert!(vec.to_vec() == vec![1, 5, 6, 7, 12, 20]);
     }
+}
+
+// --------------------------------------------------------------------------------
+
+/// Returns `Ok(p)` if `target` is at position `p`, and otherwise `Err(p)` where `p` is the position
+/// at which `target` would be inserted to keep `arr` sorted: as `arr` is sorted, it suffices that
+/// the neighbors of `p` are smaller and bigger than `target` respectively.
+#[spec(fn (arr: &mut AVec<i32>[@me], target: i32)
+       -> Result<usize{p: p < me.len && arr_get(me.elems, p) == target},
+                 usize{p: p <= me.len
+                          && (p == 0 || arr_get(me.elems, p - 1) < target)
+                          && (p == me.len || target < arr_get(me.elems, p))}>
+       requires is_sorted_between(me.elems, 0, me.len))]
+#[qualifiers(BelowTarget, AboveTarget)]
+pub fn binary_search(arr: &mut AVec<i32>, target: i32) -> Result<usize, usize> {
+    let mut lo = 0;
+    let mut hi = arr.len();
+    while lo < hi {
+        let mid = lo + (hi - lo) / 2;
+        let val = arr[mid];
+        if val == target {
+            return Ok(mid);
+        } else if val < target {
+            lo = mid + 1;
+        } else {
+            hi = mid;
+        }
+    }
+    Err(lo)
+}
+
+/// Returns `Ok(p)` if `target` is at position `p`, and otherwise `Err(p)` where `p` is the position
+/// at which `target` would be inserted to keep `arr` sorted, i.e., every element to the left of `p`
+/// is strictly smaller than `target`, and every element from `p` onwards is strictly bigger.
+#[proven_externally(proof)]
+#[spec(fn (arr: &mut AVec<i32>[@me], target: i32)
+       -> Result<usize{p: p < me.len && arr_get(me.elems, p) == target},
+                 usize{p: p <= me.len
+                          && all_lt_between(me.elems, 0, p, target)
+                          && all_gt_between(me.elems, p, me.len, target)}>
+       requires is_sorted_between(me.elems, 0, me.len))]
+pub fn binary_search_ext(arr: &mut AVec<i32>, target: i32) -> Result<usize, usize> {
+    let mut lo = 0;
+    let mut hi = arr.len();
+    while lo < hi {
+        let mid = lo + (hi - lo) / 2;
+        let val = arr[mid];
+        if val == target {
+            return Ok(mid);
+        } else if val < target {
+            lo = mid + 1;
+        } else {
+            hi = mid;
+        }
+    }
+    Err(lo)
 }
