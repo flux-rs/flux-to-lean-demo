@@ -1,6 +1,6 @@
 import Flex
 import LeanProofs.Flux.Prelude
-import LeanProofs.Flux.VC.RingbufferImpl__1__Push
+import LeanProofs.Flux.VC.RingbufferRingBufferATPush
 open Classical
 set_option linter.unusedVariables false
 
@@ -96,8 +96,8 @@ theorem circ_step (hd tl len a5 : Int) (h1 : 1 < len) (h2 : 0 ≤ hd) (h3 : hd <
     rw [hcd]
     omega
 
-def RingbufferImpl__1__Push_proof : RingbufferImpl__1__Push := by
-  unfold RingbufferImpl__1__Push
+def RingbufferRingBufferATPush_proof : RingbufferRingBufferATPush := by
+  unfold RingbufferRingBufferATPush
   fusion
   repeat' (first | (intro) | apply And.intro | grind)
   · rename_i s0 val0 inv_hyp inv0 hC hd_ge0 tl_ge0

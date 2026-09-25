@@ -1,5 +1,5 @@
 import LeanProofs.Flux.Prelude
-import LeanProofs.Flux.VC.RingbufferImpl__1__Enqueue
+import LeanProofs.Flux.VC.RingbufferRingBufferATEnqueue
 import LeanProofs.Lib.Tactics
 open Classical
 set_option linter.unusedVariables false
@@ -19,8 +19,8 @@ private theorem mod_silly (a b : Int) : 0 <= a -> 0 <= b -> a < b ->  (a % b) = 
   intro ha hb hab
   exact Int.emod_eq_of_lt ha hab
 
-theorem RingbufferImpl__1__Enqueue_proof : RingbufferImpl__1__Enqueue := by
-  unfold RingbufferImpl__1__Enqueue
+theorem RingbufferRingBufferATEnqueue_proof : RingbufferRingBufferATEnqueue := by
+  unfold RingbufferRingBufferATEnqueue
   zapNamed <;> simp_all
   · rename_i hInv hBounds hHneT hHge hTge hLeq hLge0 hLneZero hIn hPos
     intro hne

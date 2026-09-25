@@ -1,5 +1,5 @@
 import LeanProofs.Flux.Prelude
-import LeanProofs.Flux.VC.RingbufferImpl__1__Dequeue
+import LeanProofs.Flux.VC.RingbufferRingBufferATDequeue
 import Flex
 open Classical
 set_option linter.unusedVariables false
@@ -19,8 +19,8 @@ private theorem mod_silly (a b : Int) : 0 <= a -> 0 <= b -> a < b ->  (a % b) = 
   intro ha hb hab
   exact Int.emod_eq_of_lt ha hab
 
-def RingbufferImpl__1__Dequeue_proof : RingbufferImpl__1__Dequeue := by
-  unfold RingbufferImpl__1__Dequeue
+def RingbufferRingBufferATDequeue_proof : RingbufferRingBufferATDequeue := by
+  unfold RingbufferRingBufferATDequeue
   fusion
   simp_all
   repeat' (first | (intro) | apply And.intro | grind)
