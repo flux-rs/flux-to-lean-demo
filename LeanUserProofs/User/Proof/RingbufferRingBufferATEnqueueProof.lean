@@ -24,20 +24,20 @@ theorem RingbufferRingBufferATEnqueue_proof : RingbufferRingBufferATEnqueue := b
   zapNamed <;> simp_all
   · rename_i hInv hBounds hHneT hHge hTge hLeq hLge0 hLneZero hIn hPos
     intro hne
-    apply hInv a'₁ hIn.1 hIn.2
-    by_cases hc1 : s₀.hd ≤ a'₁ <;> by_cases hc2 : s₀.tl + 1 = ringbuffer_fslice_len s₀.elems
-    · have hg : (a'₁ + ringbuffer_fslice_len s₀.elems - s₀.hd) % ringbuffer_fslice_len s₀.elems = a'₁ - s₀.hd := by
-        have heqn : a'₁ + ringbuffer_fslice_len s₀.elems - s₀.hd
-            = (a'₁ - s₀.hd) + ringbuffer_fslice_len s₀.elems * 1 := by omega
+    apply hInv a'₃ hIn.1 hIn.2
+    by_cases hc1 : s₀.hd ≤ a'₃ <;> by_cases hc2 : s₀.tl + 1 = ringbuffer_fslice_len s₀.elems
+    · have hg : (a'₃ + ringbuffer_fslice_len s₀.elems - s₀.hd) % ringbuffer_fslice_len s₀.elems = a'₃ - s₀.hd := by
+        have heqn : a'₃ + ringbuffer_fslice_len s₀.elems - s₀.hd
+            = (a'₃ - s₀.hd) + ringbuffer_fslice_len s₀.elems * 1 := by omega
         rw [heqn, Int.add_mul_emod_self_left]
         exact mod_silly _ _ (by omega) (by omega) (by omega)
       have hf : (s₀.tl + 1) % ringbuffer_fslice_len s₀.elems = 0 := by rw [hc2]; exact Int.emod_self
       rw [hg]
       rw [hf] at hPos
       (try split at hPos) <;> (try split) <;> omega
-    · have hg : (a'₁ + ringbuffer_fslice_len s₀.elems - s₀.hd) % ringbuffer_fslice_len s₀.elems = a'₁ - s₀.hd := by
-        have heqn : a'₁ + ringbuffer_fslice_len s₀.elems - s₀.hd
-            = (a'₁ - s₀.hd) + ringbuffer_fslice_len s₀.elems * 1 := by omega
+    · have hg : (a'₃ + ringbuffer_fslice_len s₀.elems - s₀.hd) % ringbuffer_fslice_len s₀.elems = a'₃ - s₀.hd := by
+        have heqn : a'₃ + ringbuffer_fslice_len s₀.elems - s₀.hd
+            = (a'₃ - s₀.hd) + ringbuffer_fslice_len s₀.elems * 1 := by omega
         rw [heqn, Int.add_mul_emod_self_left]
         exact mod_silly _ _ (by omega) (by omega) (by omega)
       have hf : (s₀.tl + 1) % ringbuffer_fslice_len s₀.elems = s₀.tl + 1 :=
@@ -45,15 +45,15 @@ theorem RingbufferRingBufferATEnqueue_proof : RingbufferRingBufferATEnqueue := b
       rw [hg]
       rw [hf] at hPos
       (try split at hPos) <;> (try split) <;> omega
-    · have hg : (a'₁ + ringbuffer_fslice_len s₀.elems - s₀.hd) % ringbuffer_fslice_len s₀.elems
-          = a'₁ + ringbuffer_fslice_len s₀.elems - s₀.hd :=
+    · have hg : (a'₃ + ringbuffer_fslice_len s₀.elems - s₀.hd) % ringbuffer_fslice_len s₀.elems
+          = a'₃ + ringbuffer_fslice_len s₀.elems - s₀.hd :=
         mod_silly _ _ (by omega) (by omega) (by omega)
       have hf : (s₀.tl + 1) % ringbuffer_fslice_len s₀.elems = 0 := by rw [hc2]; exact Int.emod_self
       rw [hg]
       rw [hf] at hPos
       (try split at hPos) <;> (try split) <;> omega
-    · have hg : (a'₁ + ringbuffer_fslice_len s₀.elems - s₀.hd) % ringbuffer_fslice_len s₀.elems
-          = a'₁ + ringbuffer_fslice_len s₀.elems - s₀.hd :=
+    · have hg : (a'₃ + ringbuffer_fslice_len s₀.elems - s₀.hd) % ringbuffer_fslice_len s₀.elems
+          = a'₃ + ringbuffer_fslice_len s₀.elems - s₀.hd :=
         mod_silly _ _ (by omega) (by omega) (by omega)
       have hf : (s₀.tl + 1) % ringbuffer_fslice_len s₀.elems = s₀.tl + 1 :=
         mod_silly _ _ (by omega) (by omega) (by omega)
