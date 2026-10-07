@@ -7,7 +7,7 @@ set_option linter.unusedVariables false
 namespace F
 
 def RingbufferRingBufferATIsFull_proof : RingbufferRingBufferATIsFull := by
-  unfold RingbufferRingBufferATIsFull
+  unfold RingbufferRingBufferATIsFull ringbuffer_rb_next_index
   grind
 
 end F

@@ -12,7 +12,7 @@ namespace F
 @[qualif] def q_sq_gt     (a b : Int) : Prop := a * a > b
 
 def FibSqrt_proof : FibSqrt := by
-  unfold FibSqrt
+  unfold FibSqrt fib_is_sqrt
   fixpoint
 
 end F

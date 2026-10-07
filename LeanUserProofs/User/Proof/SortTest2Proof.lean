@@ -7,7 +7,7 @@ namespace F
 
 def SortTest2_proof : SortTest2 := by
   unfold SortTest2
-  simp_all [sort_is_sorted_between]
+  simp_all [sort_is_sorted, sort_is_sorted_between]
   zapNamed
 
 

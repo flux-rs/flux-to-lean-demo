@@ -20,7 +20,7 @@ private theorem mod_silly (a b : Int) : 0 <= a -> 0 <= b -> a < b ->  (a % b) = 
   exact Int.emod_eq_of_lt ha hab
 
 def RingbufferRingBufferATDequeue_proof : RingbufferRingBufferATDequeue := by
-  unfold RingbufferRingBufferATDequeue
+  unfold RingbufferRingBufferATDequeue ringbuffer_rb_next_index
   fusion
   simp_all
   repeat' (first | (intro) | apply And.intro | grind)
