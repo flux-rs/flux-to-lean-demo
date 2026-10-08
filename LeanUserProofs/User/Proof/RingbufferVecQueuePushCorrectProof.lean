@@ -25,7 +25,7 @@ theorem slice00 (s : FSlice Int)
   : ringbuffer_fslice_subslice s 0 0 = [] := by grind
 
 def RingbufferVecQueuePushCorrect_proof : RingbufferVecQueuePushCorrect := by
-  unfold RingbufferVecQueuePushCorrect
+  unfold RingbufferVecQueuePushCorrect ringbuffer_rb_next_index
   intro rb vq elem vqeq c1 c2 success nrb _ _ seq nrbeq successHyp
   rw [seq] at successHyp
   rw [if_pos successHyp] at nrbeq

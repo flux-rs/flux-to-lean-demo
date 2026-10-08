@@ -42,7 +42,7 @@ theorem pop_front_singleton_append (s : FSlice Int) (t : FSlice Int)
     split <;> omega
 
 def RingbufferVecQueuePopCorrect_proof : RingbufferVecQueuePopCorrect := by
-  unfold RingbufferVecQueuePopCorrect
+  unfold RingbufferVecQueuePopCorrect ringbuffer_rb_next_index
   intro rb vq vqeq hdne hvqlen _ ⟨hringlen, hhdlb, hhdhb, htllb, htlhb, _⟩ n1 n2
   simp only [if_pos hdne] at n1 n2 ⊢
   by_cases hdgttl : (rb.hd + 1) % (ringbuffer_fslice_len rb.elems) > rb.tl

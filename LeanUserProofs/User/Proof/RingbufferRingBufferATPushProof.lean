@@ -97,7 +97,7 @@ theorem circ_step (hd tl len a5 : Int) (h1 : 1 < len) (h2 : 0 ≤ hd) (h3 : hd <
     omega
 
 def RingbufferRingBufferATPush_proof : RingbufferRingBufferATPush := by
-  unfold RingbufferRingBufferATPush
+  unfold RingbufferRingBufferATPush ringbuffer_rb_next_index
   fusion
   repeat' (first | (intro) | apply And.intro | grind)
   · rename_i s0 val0 inv_hyp inv0 hC hd_ge0 tl_ge0
