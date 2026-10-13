@@ -6,7 +6,7 @@ set_option linter.unusedVariables false
 
 namespace F
 
-theorem pop_front_subslice (s : FSlice Int) (h : l < r) (hl : 0 ≤ l) :
+theorem pop_front_subslice {α : Type} [Inhabited α] (s : FSlice α) (h : l < r) (hl : 0 ≤ l) :
     ringbuffer_fslice_pop_front (ringbuffer_fslice_subslice s l r) =
     ringbuffer_fslice_subslice s (l + 1) r := by
   simp only [ringbuffer_fslice_pop_front, ringbuffer_fslice_subslice]
@@ -15,7 +15,7 @@ theorem pop_front_subslice (s : FSlice Int) (h : l < r) (hl : 0 ≤ l) :
   have h2 : r.toNat - l.toNat - 1 = r.toNat - (l + 1).toNat := by omega
   rw [h1, h2]
 
-theorem pop_front_append_subslice (s : FSlice Int) (t : FSlice Int)
+theorem pop_front_append_subslice {α : Type} [Inhabited α] (s : FSlice α) (t : FSlice α)
     (hl : 0 ≤ l) (hlt : l + 1 ≤ r) (hr : r.toNat ≤ s.length) :
     ringbuffer_fslice_pop_front (ringbuffer_fslice_append
       (ringbuffer_fslice_subslice s l r) t) =
@@ -29,7 +29,7 @@ theorem pop_front_append_subslice (s : FSlice Int) (t : FSlice Int)
   · simp [List.length_take, Nat.min_def]
     split <;> omega
 
-theorem pop_front_singleton_append (s : FSlice Int) (t : FSlice Int)
+theorem pop_front_singleton_append {α : Type} [Inhabited α] (s : FSlice α) (t : FSlice α)
     (hl : 0 ≤ l) (hend : l + 1 = r) (hr : r.toNat ≤ s.length) :
     ringbuffer_fslice_pop_front (ringbuffer_fslice_append
       (ringbuffer_fslice_subslice s l r) t) = t := by
@@ -43,7 +43,7 @@ theorem pop_front_singleton_append (s : FSlice Int) (t : FSlice Int)
 
 def RingbufferVecQueuePopCorrect_proof : RingbufferVecQueuePopCorrect := by
   unfold RingbufferVecQueuePopCorrect ringbuffer_rb_next_index
-  intro rb vq vqeq hdne hvqlen _ ⟨hringlen, hhdlb, hhdhb, htllb, htlhb, _⟩ n1 n2
+  intro T _ rb vq vqeq hdne hvqlen _ ⟨hringlen, hhdlb, hhdhb, htllb, htlhb, _⟩ n1 n2
   simp only [if_pos hdne] at n1 n2 ⊢
   by_cases hdgttl : (rb.hd + 1) % (ringbuffer_fslice_len rb.elems) > rb.tl
   · rw [if_pos hdgttl]
