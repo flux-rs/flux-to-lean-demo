@@ -99,28 +99,33 @@ theorem SortQuicksortRange_proof : SortQuicksortRange := by
       have ha3bigger : sort_is_bigger a'₃.elems lo₀ p₀ p₀ := bigger_perm hpart.1 ha3perm
       have ha3smaller : sort_is_smaller a'₃.elems p₀ (hi₀ + 1) p₀ := is_smaller_perm' hpart.2 ha3perm
       refine ⟨?_, ?_⟩
-      · intro hnph; refine ⟨ha3len, ?_, ?_⟩
-        · simp_all [sort_is_sorted_between]; grind
-        · exact sort_is_perm_trans hperm₀ (perm_widen_lo ha3perm hphi)
-      · intro hph
-        refine ⟨by omega, by omega, ?_⟩
-        intro a'₅ hbr5 _hv2len
-        obtain ⟨ha5_a3len, ha5sorted_hi_raw, ha5perm_raw⟩ := hbr5
-        have ha5len : a'₅.len = old₀.len := by grind
-        have ha5sorted_hi : sort_is_sorted_between a'₅.elems (p₀ + 1) (hi₀ + 1) := ha5sorted_hi_raw
-        have ha5perm : sort_is_perm a'₃.elems a'₅.elems (p₀ + 1) hi₀ := ha5perm_raw
-        -- a'₅ agrees with a'₃ on the lower half (frame of the upper-half sort)
-        have hframe5 : ∀ i, i < p₀ + 1 → a'₅.elems i = a'₃.elems i := by
-          have h := ha5perm; simp only [sort_is_perm, is_frame] at h; exact h.2.1
-        have h11 : sort_is_smaller a'₅.elems p₀ (hi₀ + 1) p₀ := is_smaller_perm ha3smaller ha5perm
-        have h_lo_p : sort_is_sorted_between a'₅.elems lo₀ p₀ := by
-          intro i j hij
-          rw [hframe5 i (by omega), hframe5 j (by omega)]; exact ha3sorted i j hij
-        have h_p_bigger : sort_is_bigger a'₅.elems lo₀ p₀ p₀ := by
-          intro ix hix
-          rw [hframe5 ix (by omega), hframe5 p₀ (by omega)]; exact ha3bigger ix hix
-        refine ⟨ha5len, is_sorted_using_pivot h_lo_p ha5sorted_hi h_p_bigger h11, ?_⟩
-        exact sort_is_perm_trans hperm₀
-          (sort_is_perm_trans (perm_widen_lo ha3perm hphi) (perm_widen_hi ha5perm hlop))
+      · intro hph; exact ⟨by omega, by omega⟩
+      · intro hph hbr
+        rcases hbr with ⟨hnph, h⟩ | ⟨hph', a'₅, ⟨ha5_a3len, ha5sorted_hi, ha5perm⟩, _, h⟩
+        · -- ¬ p₀ < hi₀: upper half is empty, result is a'₃
+          have he : hph.elems = a'₃.elems := h.1.1.1.1.1.1.1.1.1.1
+          have hl : hph.len = a'₃.len := h.1.1.1.1.1.1.1.1.1.2
+          rw [he, hl]
+          refine ⟨ha3len, ?_, ?_⟩
+          · simp_all [sort_is_sorted_between]; grind
+          · exact sort_is_perm_trans hperm₀ (perm_widen_lo ha3perm hphi)
+        · -- p₀ < hi₀: result is a'₅, the sorted upper half
+          have he : hph.elems = a'₅.elems := h.1.1.1.1.1.1.1.1.1.1
+          have hl : hph.len = a'₅.len := h.1.1.1.1.1.1.1.1.1.2
+          rw [he, hl]
+          have ha5len : a'₅.len = old₀.len := by grind
+          -- a'₅ agrees with a'₃ on the lower half (frame of the upper-half sort)
+          have hframe5 : ∀ i, i < p₀ + 1 → a'₅.elems i = a'₃.elems i := by
+            have h := ha5perm; simp only [sort_is_perm, is_frame] at h; exact h.2.1
+          have h11 : sort_is_smaller a'₅.elems p₀ (hi₀ + 1) p₀ := is_smaller_perm ha3smaller ha5perm
+          have h_lo_p : sort_is_sorted_between a'₅.elems lo₀ p₀ := by
+            intro i j hij
+            rw [hframe5 i (by omega), hframe5 j (by omega)]; exact ha3sorted i j hij
+          have h_p_bigger : sort_is_bigger a'₅.elems lo₀ p₀ p₀ := by
+            intro ix hix
+            rw [hframe5 ix (by omega), hframe5 p₀ (by omega)]; exact ha3bigger ix hix
+          refine ⟨ha5len, is_sorted_using_pivot h_lo_p ha5sorted_hi h_p_bigger h11, ?_⟩
+          exact sort_is_perm_trans hperm₀
+            (sort_is_perm_trans (perm_widen_lo ha3perm hphi) (perm_widen_hi ha5perm hlop))
 
 end F

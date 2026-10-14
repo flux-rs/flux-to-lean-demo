@@ -218,6 +218,7 @@ theorem SortMerge_proof : SortMerge := by
   elim_leaves
   all_goals (try unfold sortmerge_k0 sortmerge_k2 sortmerge_k3 at *)
   all_goals (try split_hyps)
+  all_goals (try subst_vars)
   all_goals
     first
       | (apply sorted_set <;> (first | assumption | grind | (simp_all <;> grind)))

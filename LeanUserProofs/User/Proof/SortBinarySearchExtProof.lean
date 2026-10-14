@@ -1,5 +1,6 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.Flux.VC.SortBinarySearchExt
+import Flex
 open Classical
 set_option linter.unusedVariables false
 
@@ -41,11 +42,8 @@ private theorem step_hi (arr : Arr Int) (len target hi mid : Int)
 
 def SortBinarySearchExt_proof : SortBinarySearchExt := by
   unfold SortBinarySearchExt
-  refine ⟨inv_bs,
-          fun p _ _ _ lo _ => p = lo,
-          fun _ _ _ _ _ _ => True,
-          fun lo₁ hi₁ arr len target _ _ => inv_bs lo₁ hi₁ arr len target,
-          fun p _ _ _ lo hi => p = lo + (hi - lo) / 2, ?_⟩
+  zap
+  refine ⟨inv_bs, ?_⟩
   intro ⟨arr, len⟩ target hsorted hlen
   simp only [inv_bs, sort_all_lt_between, sort_all_gt_between, sort_is_sorted_between,
     vectors_arr_get, LeanProofs.Lib.Lemmas.arr_get] at *
@@ -53,29 +51,23 @@ def SortBinarySearchExt_proof : SortBinarySearchExt := by
   intro lo hi ⟨hlo, hlohi, hhi, hlt, hgt⟩
   refine ⟨?exit, ?body⟩
   · -- loop exit: `lo = hi`, so the invariant gives the `Err` postcondition
-    intro hexit
-    refine ⟨trivial, ?_⟩
-    intro p hp
-    subst p
-    have heq : lo = hi := by omega
+    intro hexit p hp
+    obtain ⟨⟨⟨⟨⟨rfl, -⟩, -⟩, -⟩, -⟩, -⟩ := hp
+    have heq : p = hi := by omega
     subst heq
     exact ⟨hhi, hlt, hgt⟩
   · intro hlohi'
     refine ⟨by omega, fun _ => trivial, by omega, fun _ => ⟨?ne, ?eq⟩⟩
     · -- `arr[mid] ≠ target`: move `lo` or `hi` and re-establish the invariant
-      intro hne
-      refine ⟨?gt, ?lt, fun lo₁ hi₁ h => h⟩
-      · intro hv
-        exact ⟨hlo, by omega, by omega, hlt,
+      intro hne lo₁ hi₁ hbr
+      rcases hbr with ⟨hv, ⟨⟨⟨⟨⟨rfl, rfl⟩, -⟩, -⟩, -⟩, -⟩, -⟩ | ⟨hv, ⟨⟨⟨⟨⟨rfl, rfl⟩, -⟩, -⟩, -⟩, -⟩, -⟩
+      · exact ⟨hlo, by omega, by omega, hlt,
                step_hi arr len target hi _ hsorted hgt (by omega) (by omega) hv hne⟩
-      · intro hv
-        exact ⟨by omega, by omega, hhi,
+      · exact ⟨by omega, by omega, hhi,
                step_lo arr len target lo _ hsorted hlt hlo (by omega) (by omega) hv, hgt⟩
     · -- `arr[mid] = target`: return `Ok(mid)`
-      intro heq
-      refine ⟨trivial, ?_⟩
-      intro p hp
-      subst p
+      intro heq p hp
+      obtain ⟨⟨⟨⟨⟨rfl, -⟩, -⟩, -⟩, -⟩, -⟩ := hp
       exact ⟨by omega, by simpa using heq⟩
 
 end F
