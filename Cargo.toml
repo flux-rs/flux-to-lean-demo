@@ -12,6 +12,7 @@ incremental = true
 cache = true
 enabled = true
 lean = "check"
+allow_parametricity = true
 
 [dependencies]
 flux-rs = { git = "https://github.com/flux-rs/flux" }
