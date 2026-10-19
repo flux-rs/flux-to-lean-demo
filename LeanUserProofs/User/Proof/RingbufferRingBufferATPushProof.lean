@@ -132,7 +132,7 @@ def RingbufferRingBufferATPush_proof : RingbufferRingBufferATPush := by
       rw [htl, hhd] at hdist
       by_cases heq : a5 = s0.tl
       · simp [SmtMap_select, SmtMap_store, heq]
-      · have hsel : SmtMap_select s0.init a5 :=
+      · have hsel :=
           inv_hyp a5 ⟨ha50, by omega⟩
             (circ_step s0.hd s0.tl s0.len a5 hlen1 hhd0 hhdl htl0 htll ha50 ha5l heq hdist)
         simp only [SmtMap_select, SmtMap_store]
@@ -149,7 +149,7 @@ def RingbufferRingBufferATPush_proof : RingbufferRingBufferATPush := by
         have holddist : (a5 + s0.len - s0.hd) % s0.len <
             (if s0.tl > s0.hd then s0.tl - s0.hd else if s0.tl < s0.hd then s0.len - s0.hd + s0.tl else 0) := by
           rcases mod_succ s0.tl s0.len (by omega) (by omega) with hm | ⟨hm, hm2⟩ <;> omega
-        have hsel : SmtMap_select s0.init a5 := inv_hyp a5 ⟨ha50, by omega⟩ holddist
+        have hsel := inv_hyp a5 ⟨ha50, by omega⟩ holddist
         simp only [SmtMap_select, SmtMap_store]
         rw [if_neg]
         · exact hsel
