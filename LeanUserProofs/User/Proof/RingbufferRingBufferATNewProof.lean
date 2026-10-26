@@ -8,7 +8,7 @@ namespace F
 
 def RingbufferRingBufferATNew_proof : RingbufferRingBufferATNew := by
   unfold RingbufferRingBufferATNew
-  intros len init elems _ _
+  intros T _ len init elems _ _
   simp_all
   and_intros
   · intro idx

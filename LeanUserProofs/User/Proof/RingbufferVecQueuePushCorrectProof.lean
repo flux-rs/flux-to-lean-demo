@@ -6,13 +6,13 @@ set_option linter.unusedVariables false
 
 namespace F
 
-theorem slice_set (s : FSlice Int) (h1 : i.toNat < l.toNat ∨ i.toNat > r.toNat) (h2 : l.toNat <= r.toNat)
+theorem slice_set {α : Type} [Inhabited α] (s : FSlice α) {e : α} (h1 : i.toNat < l.toNat ∨ i.toNat > r.toNat) (h2 : l.toNat <= r.toNat)
   : ringbuffer_fslice_subslice (ringbuffer_fslice_set s i e) l r = ringbuffer_fslice_subslice s l r := by
     grind [List.drop_set, List.take_set_of_le]
 
 theorem add_one_sub (h : l <= r) : r + 1 - l = (r - l) + 1 := by omega
 
-theorem slice_set_push (s : FSlice Int) (h1 : r < s.length) (h2 : l.toNat ≤ r)
+theorem slice_set_push {α : Type} [Inhabited α] (s : FSlice α) {e : α} (h1 : r < s.length) (h2 : l.toNat ≤ r)
   : ringbuffer_fslice_subslice (ringbuffer_fslice_set s r e) l (r + 1) = ringbuffer_fslice_subslice s l r ++ [e] := by
     simp [ringbuffer_fslice_subslice, ringbuffer_fslice_set]
     rw [add_one_sub]
@@ -21,12 +21,12 @@ theorem slice_set_push (s : FSlice Int) (h1 : r < s.length) (h2 : l.toNat ≤ r)
     grind [List.drop_set, List.take_set_of_le]
     assumption
 
-theorem slice00 (s : FSlice Int)
+theorem slice00 {α : Type} [Inhabited α] (s : FSlice α)
   : ringbuffer_fslice_subslice s 0 0 = [] := by grind
 
 def RingbufferVecQueuePushCorrect_proof : RingbufferVecQueuePushCorrect := by
   unfold RingbufferVecQueuePushCorrect ringbuffer_rb_next_index
-  intro rb vq elem vqeq c1 c2 success nrb _ _ seq nrbeq successHyp
+  intro T _ rb vq elem vqeq c1 c2 success nrb _ _ seq nrbeq successHyp
   rw [seq] at successHyp
   rw [if_pos successHyp] at nrbeq
   have nrbtleq : nrb.tl = (rb.tl + 1) % (ringbuffer_fslice_len rb.elems) := by rw [nrbeq]

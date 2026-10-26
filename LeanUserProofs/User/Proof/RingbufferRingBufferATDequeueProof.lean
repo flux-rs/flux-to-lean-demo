@@ -21,6 +21,7 @@ private theorem mod_silly (a b : Int) : 0 <= a -> 0 <= b -> a < b ->  (a % b) = 
 
 def RingbufferRingBufferATDequeue_proof : RingbufferRingBufferATDequeue := by
   unfold RingbufferRingBufferATDequeue ringbuffer_rb_next_index
+  intro T _
   fusion
   simp_all
   repeat' (first | (intro) | apply And.intro | grind)
