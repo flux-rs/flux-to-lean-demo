@@ -1,0 +1,2 @@
+[cache]
+enabled = true # cache fixpoint queries in <target-dir>/flux-cache
