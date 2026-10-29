@@ -9,4 +9,5 @@ globs = ["LeanProofs.+"]
 [[require]]
 name = "LeanFixpoint"
 git = "https://github.com/jam-khan/lean-fixpoint"
-rev = "main"
+# Pinned to main as of 2026-10-18, when these proofs last built; later main changed `zap` and removed `fusion`.
+rev = "b48c0f33ab6efe324c4a8af74eef15d43952c21f"
